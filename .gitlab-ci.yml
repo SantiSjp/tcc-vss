@@ -1,0 +1,23 @@
+image: gcc
+
+stages:
+  - build
+  - test
+
+building:
+  stage: build
+  
+  before_script:
+    - apt update 
+    - apt -y install make cmake libgtest-dev
+
+  script: 
+    - mkdir -p build 
+    - cmake ..
+    - make
+
+testing:
+  stage: test
+  script:
+    - ./test/unit/unit_test
+
