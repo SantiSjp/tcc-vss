@@ -2,7 +2,6 @@ image: gcc
 
 stages:
   - build
-  - test
 
 building:
   stage: build
@@ -13,11 +12,6 @@ building:
 
   script: 
     - mkdir -p build 
-    - cmake ..
+    - cd build
+	- cmake ..
     - make
-
-testing:
-  stage: test
-  script:
-    - ./test/unit/unit_test
-
