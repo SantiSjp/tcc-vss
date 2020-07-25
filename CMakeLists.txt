@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.8)
-project(cicd_demo VERSION 0.0.1 LANGUAGES CXX)
+project(vision_vss VERSION 0.0.1 LANGUAGES CXX)
 
-set(PROJECT_NAME cicd_demo)
+set(PROJECT_NAME vision_vss)
 
 option(BUILD_TESTS "Build unit tests" OFF)
 

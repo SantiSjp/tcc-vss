@@ -1,0 +1,13 @@
+#!/bin/bash
+
+if [ "$EUID" -ne 0 ]
+	then 
+		echo "Please run as root"
+		exit
+fi
+
+#update packages
+apt update
+
+#install dependencies
+apt -y install build-essential make cmake libgtest-dev git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev 
