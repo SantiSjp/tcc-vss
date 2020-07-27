@@ -1,5 +1,6 @@
 #include "Control.h"
 #include <iostream>
+#include <memory>
 
 int Control::Start(){
     //spawn threads
@@ -13,9 +14,16 @@ int Control::Start(){
     return 0;
 }
 
-bool Control::addRobot() {
+void Control::addRobot(const id mid, 
+    const color mprimaryColor, 
+    const bool misAlly) {
     
-    return false;
+    if(misAlly) {
+        allyRobots[mid] = std::make_unique<Robot>(mid, mprimaryColor, misAlly);
+        
+    } else {
+        enemyRobots[mid] = std::make_unique<Robot>(mid, mprimaryColor, misAlly);
+    }
 }
 
 Control::~Control(){

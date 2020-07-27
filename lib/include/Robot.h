@@ -22,7 +22,7 @@ public:
             const bool misAlly = false) 
                 : id(mid), primaryColor(mcolor), isAlly(misAlly) {};
 
-    void updatePosition(position& pos) { currentPosition = pos;}
+    void updatePosition(const position& pos) { currentPosition = pos;}
     const position getPosition() const { return currentPosition; }
 
 };

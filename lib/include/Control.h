@@ -3,26 +3,29 @@
 
 #include <string>
 #include <map>
+#include <memory>
 
 #include "Robot.h"
 
 class Control {
 private:
-    bool isRunning = false;
+    bool isRunning = false; //Start loop
 
-    std::map<id, Robot> allyRobots;
-    std::map<id, Robot> enemyRobots;
+    std::map<id, std::unique_ptr<Robot>> allyRobots;
+    std::map<id, std::unique_ptr<Robot>> enemyRobots;
     position ballPos;
 
-    //queues ...
+    //Queues
+    
+
+    //command getCommand();
 
 public:
     Control(){};
     ~Control();
 
     int Start();
-    bool addRobot();
-    //command getCommand();
+    void addRobot(const id mid, const color mprimaryColor, const bool misAlly=false);
 
 };
 
