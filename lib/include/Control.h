@@ -5,6 +5,7 @@
 #include <map>
 #include <memory>
 
+#include "PolyM/Queue.h" //PolyM
 #include "Robot.h"
 
 class Control {
@@ -16,7 +17,7 @@ private:
     position ballPos;
 
     //Queues
-    
+    PolyM::Queue cameraQueue;
 
     //command getCommand();
 
