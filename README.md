@@ -9,7 +9,7 @@ Very Small Size Soccer TCC Project
 >> Run InstallDependencies as sudo 
 	sudo ./InstallDependencies
 
->> Clone opencv in a new directory: 
+>> Clone opencv in a new directory (ex.: /tmp): 
 	git clone https://github.com/opencv/opencv.git
 
 >> Install opencv
