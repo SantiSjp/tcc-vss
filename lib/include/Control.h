@@ -18,6 +18,9 @@ private:
 
     //Queues
     PolyM::Queue cameraQueue;
+    PolyM::Queue processQueue;
+    PolyM::Queue commandQueue;
+    PolyM::Queue robotQueue;
 
     //command getCommand();
 
