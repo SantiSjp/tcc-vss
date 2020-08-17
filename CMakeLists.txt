@@ -7,6 +7,8 @@ option(BUILD_TESTS "Build unit tests" OFF)
 
 add_subdirectory(lib)
 
+find_package(OpenCV REQUIRED)
+
 if(BUILD_TESTS)
     add_subdirectory(test)
 endif()

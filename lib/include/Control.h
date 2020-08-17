@@ -6,6 +6,9 @@
 #include <memory>
 
 #include "PolyM/Queue.h" //PolyM
+
+#include "opencv2/core/utility.hpp"
+
 #include "Robot.h"
 
 class Control {
