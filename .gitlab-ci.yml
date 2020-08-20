@@ -18,12 +18,10 @@ Build:
       - build/
 
   script:
-    - pwd
-    - ls
-    - cmake -DBUILD_TESTS=ON -DGEN_PACKAGE=ON -B build
-    - pwd
-    - ls
-    - cmake --build build
+    - mkdir build
+    - cd build
+    - cmake -DBUILD_TESTS=ON -DGEN_PACKAGE=ON ..
+    - make
 
 Test:
   stage: test
