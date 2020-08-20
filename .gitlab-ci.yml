@@ -17,8 +17,12 @@ Build:
     paths:
       - build/
 
-  script: 
+  script:
+    - pwd
+    - ls
     - cmake -DBUILD_TESTS=ON -DGEN_PACKAGE=ON -B build
+    - pwd
+    - ls
     - cmake --build build
 
 Test:
