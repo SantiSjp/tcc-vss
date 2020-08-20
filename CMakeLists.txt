@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.4)
 project(vision_vss VERSION 0.0.1 LANGUAGES CXX)
 
 set(PROJECT_NAME vision_vss)
