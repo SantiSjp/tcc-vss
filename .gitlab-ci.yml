@@ -1,4 +1,4 @@
-image: opencvcourses/opencv
+image: spmallick/opencv-docker
 
 stages:
   - build
