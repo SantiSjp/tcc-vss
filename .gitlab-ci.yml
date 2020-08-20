@@ -1,4 +1,4 @@
-image: spmallick/opencv-docker:opencv-4
+image: codesignal/opencv:v7.1
 
 stages:
   - build
