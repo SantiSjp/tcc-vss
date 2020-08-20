@@ -8,10 +8,6 @@ stages:
 Build:
   stage: build
   
-  #before_script:
-  #  - apt update 
-  #  - apt -y install make cmake libgtest-dev rpm g++ build-essential libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev 
-  
   cache:
     key: cached
     policy: push
@@ -48,10 +44,6 @@ Deploy:
     - release
     - master
 
-  before_script:
-    - apt update
-    - apt -y install make cmake libgtest-dev rpm g++
-
   artifacts:
     when: on_success
     paths:
@@ -61,4 +53,4 @@ Deploy:
     - cmake -DBUILD_TESTS=ON -DGEN_PACKAGE=ON -DCMAKE_BUILD_WITH_INSTALL_RPATH=TRUE -B build
     - cd build
     - make
-    - cpack --debug -V
+    - cpack -V
