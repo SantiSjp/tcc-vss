@@ -11,9 +11,11 @@ add_executable(${TEST_NAME}
 
 target_link_libraries(${TEST_NAME} 
     PUBLIC 
-        proprietary_libs 
         GTest::GTest 
         GTest::Main
+        proprietary_libs
+        pthread
+        ${OpenCV_LIBS}
 )
 
 add_test(unit_tests ${TEST_NAME})

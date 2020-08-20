@@ -2,7 +2,7 @@
 #include <iostream>
 #include <memory>
 
-int Control::Start(){
+int Control::start(){
     //spawn threads
     
     isRunning = true;
