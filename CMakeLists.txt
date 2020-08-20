@@ -4,7 +4,7 @@ project(vision_vss VERSION 0.0.1 LANGUAGES CXX)
 set(PROJECT_NAME vision_vss)
 set(VERSION 0.0.1)
 
-option(BUILD_TESTS "Build unit tests" OFF)
+option(BUILD_TESTS "Build unit tests" ON)
 option(GEN_PACKAGE "Generate rpm for deployment" OFF)
 
 add_subdirectory(lib)
