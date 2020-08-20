@@ -3,13 +3,14 @@ image: santisjp/opencv_cpp:tccvss
 stages:
   - build
   - test
+  - deploy
 
 Build:
   stage: build
   
-  before_script:
-    - apt update 
-    - apt -y install make cmake libgtest-dev rpm g++ build-essential libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev 
+  #before_script:
+  #  - apt update 
+  #  - apt -y install make cmake libgtest-dev rpm g++ build-essential libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev 
   
   cache:
     key: cached
@@ -18,10 +19,8 @@ Build:
       - build/
 
   script:
-    - mkdir build
-    - cd build
-    - cmake -DBUILD_TESTS=ON -DGEN_PACKAGE=ON ..
-    - make
+    - cmake -DBUILD_TESTS=ON -DGEN_PACKAGE=ON -B build
+    - cmake --build build
 
 Test:
   stage: test
@@ -41,20 +40,25 @@ Test:
   script: 
     - ./build/test/unit/unit_test >> unit_tests_output.txt
 
-#Deploy:
-#  stage: deploy
-#
-#  before_script:
-#    - apt update
-#    - apt -y install make cmake libgtest-dev rpm g++
-#
-#  artifacts:
-#    when: on_success
-#    paths:
-#      - build/*.rpm
-#
-#  script:
-#    - cmake -DBUILD_TESTS=ON -DGEN_PACKAGE=ON -DCMAKE_BUILD_WITH_INSTALL_RPATH=TRUE -B build
-#    - cd build
-#    - make
-#    - cpack --debug -V
+Deploy:
+  stage: deploy
+
+  only:
+    - develop
+    - release
+    - master
+
+  before_script:
+    - apt update
+    - apt -y install make cmake libgtest-dev rpm g++
+
+  artifacts:
+    when: on_success
+    paths:
+      - build/*.rpm
+
+  script:
+    - cmake -DBUILD_TESTS=ON -DGEN_PACKAGE=ON -DCMAKE_BUILD_WITH_INSTALL_RPATH=TRUE -B build
+    - cd build
+    - make
+    - cpack --debug -V
