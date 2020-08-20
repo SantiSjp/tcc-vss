@@ -1,0 +1,56 @@
+image: santisjp/opencv_cpp:tccvss
+
+stages:
+  - build
+  - test
+  - deploy
+
+Build:
+  stage: build
+  
+  cache:
+    key: cached
+    policy: push
+    paths:
+      - build/
+
+  script:
+    - cmake -DBUILD_TESTS=ON -DGEN_PACKAGE=ON -B build
+    - cmake --build build
+
+Test:
+  stage: test
+
+  cache:
+    key: cached
+    policy: pull
+    paths:
+      - build/
+  
+  artifacts:
+    when: on_success
+    expose_as: 'Unit Tests Output'
+    paths:
+      - unit_tests_output.txt
+      
+  script: 
+    - ./build/test/unit/unit_test >> unit_tests_output.txt
+
+Deploy:
+  stage: deploy
+
+  only:
+    - develop
+    - release
+    - master
+
+  artifacts:
+    when: on_success
+    paths:
+      - build/*.rpm
+
+  script:
+    - cmake -DBUILD_TESTS=ON -DGEN_PACKAGE=ON -DCMAKE_BUILD_WITH_INSTALL_RPATH=TRUE -B build
+    - cd build
+    - make
+    - cpack -V

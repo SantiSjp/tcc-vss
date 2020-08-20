@@ -24,7 +24,7 @@ public:
 
     void updatePosition(const position& pos) { currentPosition = pos;}
     const position getPosition() const { return currentPosition; }
-
+    bool ally() const {return isAlly;}
 };
 
 #endif
