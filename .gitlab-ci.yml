@@ -9,7 +9,7 @@ Build:
   
   before_script:
     - apt update 
-    - apt -y install make cmake libgtest-dev rpm g++
+    - apt -y install make cmake libgtest-dev rpm g++ build-essential libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev 
   
   cache:
     key: cached
@@ -20,8 +20,8 @@ Build:
   script:
     - mkdir build
     - cd build
-    - mv /usr/local/include/opencv4/opencv2 /usr/local/include/
-    - rm -rf /usr/local/include/opencv4
+    #- mv /usr/local/include/opencv4/opencv2 /usr/local/include/
+    #- rm -rf /usr/local/include/opencv4
     - cmake -DBUILD_TESTS=ON -DGEN_PACKAGE=ON ..
     - make
 
