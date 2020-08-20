@@ -1,4 +1,4 @@
-image: codesignal/opencv:v7.1
+image: opencv_cpp:tccvss
 
 stages:
   - build
@@ -20,8 +20,6 @@ Build:
   script:
     - mkdir build
     - cd build
-    #- mv /usr/local/include/opencv4/opencv2 /usr/local/include/
-    #- rm -rf /usr/local/include/opencv4
     - cmake -DBUILD_TESTS=ON -DGEN_PACKAGE=ON ..
     - make
 
