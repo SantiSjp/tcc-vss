@@ -20,7 +20,7 @@ Build:
   script:
     - mkdir build
     - cd build
-    - mv -r /usr/local/include/opencv4/opencv2 /usr/local/include/
+    - mv /usr/local/include/opencv4/opencv2 /usr/local/include/
     - cmake -DBUILD_TESTS=ON -DGEN_PACKAGE=ON ..
     - make
 
