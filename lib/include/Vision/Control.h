@@ -15,6 +15,8 @@ class Control {
 private:
     bool isRunning = false; //Start loop
 
+public:
+
     std::map<id, std::unique_ptr<Robot>> allyRobots;
     std::map<id, std::unique_ptr<Robot>> enemyRobots;
     position ballPos;
@@ -27,11 +29,10 @@ private:
 
     //command getCommand();
 
-public:
     Control(){};
     ~Control();
 
-    int Start();
+    int start();
     void addRobot(const id mid, const color mprimaryColor, const bool misAlly=false);
 
 };
