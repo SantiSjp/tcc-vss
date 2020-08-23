@@ -1,7 +1,7 @@
 add_subdirectory(src)
 
 file(GLOB_RECURSE SOURCE_FILES include/Vision/*.cpp)
-file(GLOB_RECURSE HEADER_FILES include/Vision/*.h)
+file(GLOB_RECURSE HEADER_FILES include/Vision/*.h )
 
 file(GLOB_RECURSE POLYM_SOURCE include/PolyM/*.cpp)
 file(GLOB_RECURSE POLYM_HEADER include/PolyM/*.h)

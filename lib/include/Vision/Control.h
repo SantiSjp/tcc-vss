@@ -4,6 +4,7 @@
 #include <string>
 #include <map>
 #include <memory>
+#include <thread>
 
 #include "PolyM/Queue.h" //PolyM
 
@@ -14,6 +15,9 @@
 class Control {
 private:
     bool isRunning = false; //Start loop
+
+    void getCommand();
+    std::thread commandThread;
 
 public:
 

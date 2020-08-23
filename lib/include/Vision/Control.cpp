@@ -4,12 +4,10 @@
 
 int Control::start(){
     //spawn threads
-    
-    isRunning = true;
-    while(isRunning){
-        std::cout << "running" << std::endl;
 
-    }
+    commandThread = std::thread(&Control::getCommand,this);
+
+    isRunning = true;
 
     return 0;
 }
@@ -26,6 +24,19 @@ void Control::addRobot(const id mid,
     }
 }
 
+void Control::getCommand(){
+    while (isRunning){
+        auto cmd = commandQueue.get(500);
+
+        if(cmd->getMsgId() != PolyM::MSG_TIMEOUT){
+            auto aux = dynamic_cast<PolyM::DataMsg<std::map<int,std::vector<double>>>&>(*cmd).getPayload();
+            std::cout << aux[1][0] << std::endl;
+            // Executar funcoes para validar comando para o robo.
+        }
+    }
+}
+
 Control::~Control(){
     isRunning = false;
+    commandThread.join();
 }
