@@ -25,4 +25,4 @@ target_include_directories(proprietary_libs
      	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
             ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
-target_link_libraries(proprietary_libs ${OpenCV_LIBS} polym pthread stdc++fs)
+target_link_libraries(proprietary_libs ${OpenCV_LIBS} polym pthread stdc++fs inotify-cpp-shared)

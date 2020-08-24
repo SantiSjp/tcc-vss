@@ -5,12 +5,15 @@
 #include <string>
 //#include <filesystem>
 #include <experimental/filesystem>
+#include <sys/inotify.h>
 
 #include "Control.h"
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/highgui/highgui.hpp>
+
+#include <inotify-cpp/NotifierBuilder.h>
 
 int Control::start(){
     //spawn threads

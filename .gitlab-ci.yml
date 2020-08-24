@@ -7,12 +7,16 @@ stages:
 
 Build:
   stage: build
-  
+
   cache:
     key: cached
     policy: push
     paths:
       - build/
+
+  before_script:
+    - apt update
+    - apt -y install libboost-all-dev
 
   script:
     - cmake -DBUILD_TESTS=ON -DGEN_PACKAGE=ON -B build
@@ -48,6 +52,10 @@ Deploy:
     when: on_success
     paths:
       - build/*.deb
+
+  before_script:
+    - apt update
+    - apt -y install libboost-all-dev
 
   script:
     - cmake -DBUILD_TESTS=ON -DGEN_PACKAGE=ON -DCMAKE_BUILD_WITH_INSTALL_RPATH=TRUE -B build
