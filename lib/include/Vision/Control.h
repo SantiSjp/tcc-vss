@@ -4,6 +4,7 @@
 #include <string>
 #include <map>
 #include <memory>
+#include <thread>
 
 #include "PolyM/Queue.h" //PolyM
 
@@ -14,6 +15,13 @@
 class Control {
 private:
     bool isRunning = false; //Start loop
+    int imageSeqNum = 0;
+
+    //threads
+    std::thread imageThread;
+
+    //thread methods
+    void getImage();
 
 public:
 
@@ -26,8 +34,6 @@ public:
     PolyM::Queue processQueue;
     PolyM::Queue commandQueue;
     PolyM::Queue robotQueue;
-
-    //command getCommand();
 
     Control(){};
     ~Control();

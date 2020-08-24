@@ -1,5 +1,8 @@
 add_subdirectory(src)
 
+find_package(OpenCV REQUIRED)
+include_directories( ${OpenCV_INCLUDE_DIRS} )
+
 file(GLOB_RECURSE SOURCE_FILES include/Vision/*.cpp)
 file(GLOB_RECURSE HEADER_FILES include/Vision/*.h)
 
@@ -15,12 +18,11 @@ target_include_directories(polym
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
-#target_compile_features(proprietary_libs PUBLIC cxx_std_17)
+target_compile_features(proprietary_libs PUBLIC cxx_std_20)
 target_include_directories(proprietary_libs
 	PUBLIC
         $<INSTALL_INTERFACE:include>
      	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
             ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
-
-target_link_libraries(proprietary_libs polym)
+target_link_libraries(proprietary_libs ${OpenCV_LIBS} polym pthread stdc++fs)
