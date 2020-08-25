@@ -6,13 +6,13 @@ include_directories( ${OpenCV_INCLUDE_DIRS} )
 file(GLOB_RECURSE SOURCE_FILES include/Vision/*.cpp)
 file(GLOB_RECURSE HEADER_FILES include/Vision/*.h)
 
-file(GLOB_RECURSE POLYM_SOURCE include/PolyM/*.cpp)
-file(GLOB_RECURSE POLYM_HEADER include/PolyM/*.h)
-
-FIND_PACKAGE( Boost 1.40 COMPONENTS program_options REQUIRED )
+FIND_PACKAGE( Boost 1.40 COMPONENTS filesystem REQUIRED )
 INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
 
 add_library(proprietary_libs SHARED ${SOURCE_FILES} ${HEADER_FILES})
+
+file(GLOB_RECURSE POLYM_SOURCE include/PolyM/*.cpp)
+file(GLOB_RECURSE POLYM_HEADER include/PolyM/*.h)
 add_library(polym SHARED ${POLYM_SOURCE} ${POLYM_HEADER})
 
 target_include_directories(polym
