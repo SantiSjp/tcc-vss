@@ -13,12 +13,9 @@ ProcessImages::ProcessImages(PolyM::Queue& queue)
 void ProcessImages::start(){
     isRunning = true;
     while (isRunning){
-        std::cout << "00" << std::endl;
         auto codedImage = cameraQueue.get(500);
-        std::cout << "01" << std::endl;
         if(codedImage->getMsgId() != PolyM::MSG_TIMEOUT){
             auto image = dynamic_cast<PolyM::DataMsg<cv::Mat>&>(*codedImage).getPayload();
-            std::cout << "02" << std::endl;
             //Apply all image filters needed with opencv
 
             //test saving image in /tmp

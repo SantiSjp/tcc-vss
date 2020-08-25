@@ -10,7 +10,7 @@ fi
 apt update
 
 #install dependencies
-apt -y install build-essential make cmake libgtest-dev git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev 
+apt -y install build-essential make cmake libgtest-dev git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev libboost-all-dev
 
 #install opencv
 echo "WARNNING!"

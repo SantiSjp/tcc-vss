@@ -55,16 +55,14 @@ void Control::addRobot(const id mid,
 
 
 void Control::getImage(const std::string& path){
-        std::cout << "03" << std::endl;
         cv::Mat image;
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
         image = cv::imread(path, cv::ImreadModes::IMREAD_COLOR);
         if(!image.data){
             return;
         }
-        std::cout << "04" << std::endl;
+        
         cameraQueue.put(PolyM::DataMsg<cv::Mat>(0,image));
-        std::cout << "05" << std::endl;
 }
 
 void Control::onNewFile(const callBack& t_callback){
