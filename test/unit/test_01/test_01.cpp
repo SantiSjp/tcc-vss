@@ -1,14 +1,13 @@
 #include "gtest/gtest.h"
-#include "Vision/Control.h"
+#include <Vision/Control.h>
 
 namespace {
 
     TEST(Robots, AddAlly) {
-        Control control;
-        control.start();
+        Control vision("/tmp/vision/capture");
         const id newId = 1;
-        control.addRobot(newId, {0,1}, true);
-        ASSERT_EQ(true, control.allyRobots[newId]->ally());
+        vision.addRobot(newId, {0,1}, true);
+        ASSERT_EQ(true, vision.allyRobots[newId]->ally());
     }
     
 

@@ -1,11 +1,7 @@
 #include <ctime>
 #include <iostream>
-#include <memory>
 #include <chrono>
-#include <string>
-//#include <filesystem>
 #include <experimental/filesystem>
-#include <sys/inotify.h>
 
 #include "Control.h"
 
@@ -13,20 +9,37 @@
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
-#include <inotify-cpp/NotifierBuilder.h>
+Control::Control(const std::string& capturePath) 
+    : m_capturePath(capturePath) {
+    if(startInotify()) {
+        m_failedToBuild = true;
+    }
 
-int Control::start(){
+    proc = std::make_unique<ProcessImages>(cameraQueue);
+
     //spawn threads
-    imageThread = std::thread(&Control::getImage, this);
-
+    processThread = std::thread(&ProcessImages::start, proc.get());
+    
     isRunning = true;
-    // while(isRunning){
-    //     std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-    //     std::cout << "running" << std::endl;
-    // }
-
-    return 0;
 }
+
+bool Control::startInotify() {
+    boost::filesystem::path path(m_capturePath);
+    auto handleNotification = [&](inotify::Notification notification) {
+        std::cout << notification.path.c_str() << std::endl;
+        getImage(notification.path.c_str());
+    };
+
+    auto events = {inotify::Event::create, inotify::Event::moved_to, inotify::Event::move};
+
+    m_notifier = inotify::BuildNotifier();
+    m_notifier.watchPathRecursively(path);
+    m_notifier.onEvents(events, handleNotification);
+
+    m_monitorThread = std::thread([&](){m_notifier.run();});
+    return true;
+}
+
 
 void Control::addRobot(const id mid, 
     const color mprimaryColor, 
@@ -41,31 +54,29 @@ void Control::addRobot(const id mid,
 }
 
 
-void Control::getImage(){
-    while(isRunning) {
-        //change with inotify
-        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-        
-        //check dir with inotify
-        
-        std::string path("/tmp/vision/capture");
-        const auto& entry = std::experimental::filesystem::directory_iterator(path);
-        //std::cout << entry->path() << std::endl;
-
+void Control::getImage(const std::string& path){
+        std::cout << "03" << std::endl;
         cv::Mat image;
-        image = cv::imread(entry->path(), cv::ImreadModes::IMREAD_COLOR);
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        image = cv::imread(path, cv::ImreadModes::IMREAD_COLOR);
         if(!image.data){
-            continue;
+            return;
         }
+        std::cout << "04" << std::endl;
+        cameraQueue.put(PolyM::DataMsg<cv::Mat>(0,image));
+        std::cout << "05" << std::endl;
+}
 
-        //test saving image in /tmp
-        std::string output = "/tmp/vision/test-output/test-" + std::to_string(imageSeqNum) + ".png";
-        imageSeqNum++;
-        cv::imwrite(output, image);
-    }
+void Control::onNewFile(const callBack& t_callback){
+    m_notifyCallBack = t_callback;
 }
 
 Control::~Control(){
     isRunning = false;
-    imageThread.join();
+    m_notifier.stop();
+
+    proc->stop();
+
+    processThread.join();
+    m_monitorThread.join();
 }
