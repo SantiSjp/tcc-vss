@@ -36,7 +36,11 @@ Test:
     expose_as: 'Unit Tests Output'
     paths:
       - unit_tests_output.txt
-      
+    
+  before_script:
+    - apt update
+    - apt -y install libboost-all-dev    
+  
   script: 
     - ./build/test/unit/unit_test >> unit_tests_output.txt
 
