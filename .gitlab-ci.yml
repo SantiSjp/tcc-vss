@@ -34,7 +34,11 @@ Test:
       - unit_tests_output.txt
       
   script: 
+    - mkdir /tmp/vision
+    - mkdir /tmp/vision/test-output
+    - mkdir /tmp/vision/capture/
     - ./build/test/unit/unit_test >> unit_tests_output.txt
+    
 
 Deploy:
   stage: deploy
