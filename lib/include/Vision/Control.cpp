@@ -77,8 +77,6 @@ Control::~Control(){
     std::cout << "Stoping proc" << std::endl;
     proc->stop();
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
     std::cout << "Thread join" << std::endl;
     processThread.join();
     m_monitorThread.join();
