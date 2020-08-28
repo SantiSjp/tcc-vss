@@ -44,14 +44,13 @@ bool Control::startInotify() {
 void Control::addRobot(const id mid, 
     const color mprimaryColor, 
     const bool misAlly) {
-    std::cout << "Entered addRobot" << std::endl;
     if(misAlly) {
         allyRobots[mid] = std::make_unique<Robot>(mid, mprimaryColor, misAlly);
         
     } else {
         enemyRobots[mid] = std::make_unique<Robot>(mid, mprimaryColor, misAlly);
     }
-    std::cout << "Exiting addRobot" << std::endl;
+    
 }
 
 
@@ -74,11 +73,8 @@ Control::~Control(){
     isRunning = false;
     m_notifier.stop();
 
-    std::cout << "Stoping proc" << std::endl;
     proc->stop();
 
-    std::cout << "Thread join" << std::endl;
     processThread.join();
     m_monitorThread.join();
-    std::cout << "Finishing - threads joined" << std::endl;
 }
