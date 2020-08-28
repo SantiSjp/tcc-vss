@@ -1,4 +1,4 @@
-image: santisjp/opencv_cpp:tccvss
+image: santisjp/opencv_cpp:tccvss2
 
 stages:
   - build

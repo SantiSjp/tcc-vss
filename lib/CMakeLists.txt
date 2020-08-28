@@ -3,12 +3,12 @@ add_subdirectory(src)
 find_package(OpenCV REQUIRED)
 include_directories( ${OpenCV_INCLUDE_DIRS} )
 
+set(Boost_USE_STATIC_LIBS ON)
+FIND_PACKAGE( Boost 1.54.0 COMPONENTS filesystem system REQUIRED )
+INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
+
 file(GLOB_RECURSE SOURCE_FILES include/Vision/*.cpp)
 file(GLOB_RECURSE HEADER_FILES include/Vision/*.h)
-
-set(Boost_USE_STATIC_LIBS ON)
-FIND_PACKAGE( Boost COMPONENTS filesystem REQUIRED )
-INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
 
 add_library(proprietary_libs STATIC ${SOURCE_FILES} ${HEADER_FILES})
 
