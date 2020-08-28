@@ -8,13 +8,10 @@
 #include "Vision/Robot.h"
 #include "Control.h"
 
-class CommandRobot {
+class CommandRobot : public Control {
 public:
 
-    Control control;
-
-    CommandRobot(){};
-
+    CommandRobot(const std::string& path);
     void insertCommandInQueue(int idRobot, std::vector<double> pos);
 
 };

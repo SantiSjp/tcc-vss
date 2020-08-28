@@ -1,1 +1,2 @@
-add_subdirectory(PolyM)
+add_subdirectory(inotify-cpp)
+#add_subdirectory(PolyM)

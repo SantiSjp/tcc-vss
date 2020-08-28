@@ -1,15 +1,20 @@
 cmake_minimum_required(VERSION 3.4)
 project(vision_vss VERSION 0.0.1 LANGUAGES CXX)
-
 set(PROJECT_NAME vision_vss)
 set(VERSION 0.0.1)
 
+set(CMAKE_CXX_STANDARD 20)
+
 option(BUILD_TESTS "Build unit tests" ON)
-option(GEN_PACKAGE "Generate rpm for deployment" OFF)
+option(GEN_PACKAGE "Generate packages for deployment" OFF)
+option(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_subdirectory(lib)
+add_subdirectory(3rdparty)
 
-find_package(OpenCV REQUIRED)
+#Make necessary directories
+file(MAKE_DIRECTORY /tmp/vision/capture)
+file(MAKE_DIRECTORY /tmp/vision/test-output)
 
 if(BUILD_TESTS)
     add_subdirectory(test)

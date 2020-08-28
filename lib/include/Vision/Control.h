@@ -10,14 +10,33 @@
 
 #include "opencv2/core/utility.hpp"
 
+#include <inotify-cpp/NotifierBuilder.h>
+
 #include "Robot.h"
+#include "ProcessImages.h"
 
 class Control {
 private:
-    bool isRunning = false; //Start loop
+    bool m_failedToBuild = true;            //Check if start is OK 
+    bool isRunning = false;                 //Start loop
+    std::string m_capturePath;              //Path to captured frames
+    
+    inotify::NotifierBuilder m_notifier;    //Inotify object for callback handle
+    std::unique_ptr<ProcessImages> proc;    //OpenCV methods for image processing
+    
+    //threads
+    //std::thread imageThread;
+    std::thread processThread;
+    std::thread m_monitorThread;
 
-    void getCommand();
-    std::thread commandThread;
+    //thread methods
+    void getImage(const std::string& path);
+
+    bool startInotify();                    //configure inotify
+
+    //Callback for inotify
+    using callBack = std::function<void(void)>;
+    callBack m_notifyCallBack;
 
 public:
 
@@ -31,13 +50,11 @@ public:
     PolyM::Queue commandQueue;
     PolyM::Queue robotQueue;
 
-    //command getCommand();
-
-    Control(){};
+    Control(const std::string& capturePath);
     ~Control();
 
-    int start();
     void addRobot(const id mid, const color mprimaryColor, const bool misAlly=false);
+    void onNewFile(const callBack& t_callback);
 
 };
 
