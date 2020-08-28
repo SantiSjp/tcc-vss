@@ -17,7 +17,6 @@ Build:
   script:
     - cmake -DBUILD_TESTS=ON -DGEN_PACKAGE=ON -B build
     - cmake --build build
-    - ./build/test/unit/unit_test
 
 Test:
   stage: test
@@ -35,6 +34,9 @@ Test:
       - unit_tests_output.txt 
   
   script: 
+    - mkdir /tmp/vision
+    - mkdir /tmp/vision/test-output
+    - mkdir /tmp/vision/capture/
     - ./build/test/unit/unit_test
     #- ./build/test/unit/unit_test >> unit_tests_output.txt
 
