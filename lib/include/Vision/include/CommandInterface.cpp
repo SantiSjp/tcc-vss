@@ -11,5 +11,5 @@ void CommandInterface::addNewRobot(const int id, const vss::color& newColor, con
 }
 
 void CommandInterface::insertCommandInQueue(int idRobot, const int posX, const int posY){
-    control.putCommand(CommandFactory::makeNew(idRobot, posX, posY));
+    control.putInCommandQueue(CommandFactory::makeNew(idRobot, posX, posY));
 }

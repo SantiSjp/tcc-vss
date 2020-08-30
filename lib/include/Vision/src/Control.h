@@ -21,13 +21,13 @@ namespace vss {
 class Control {
 private:
     bool m_failedToBuild = true;            //Check if start is OK 
-    bool isRunning = false;                 //Start loop
+    bool m_isRunning = false;                 //Start loop
     std::string m_capturePath;              //Path to captured frames
     
     //Position maps
-    std::map<id, std::unique_ptr<Robot>> allyRobots;
-    std::map<id, std::unique_ptr<Robot>> enemyRobots;
-    position ballPos;
+    std::map<id, std::unique_ptr<Robot>> m_allyRobots;
+    std::map<id, std::unique_ptr<Robot>> m_enemyRobots;
+    position m_ballPos;
 
     //Queues
     PolyM::Queue cameraQueue;
@@ -36,23 +36,23 @@ private:
     PolyM::Queue robotQueue;
 
     inotify::NotifierBuilder m_notifier;    //Inotify object for callback handle
-    std::unique_ptr<ProcessImages> proc;    //OpenCV methods for image processing
+    std::unique_ptr<ProcessImages> m_processImages;    //OpenCV methods for image processing
     
     //threads
-    std::thread processThread;
+    std::thread m_processThread;
     std::thread m_monitorThread;
 
     //thread methods
-    void getImage(const std::string& path);
+    void putInCameraQueue(const std::string& path);
     bool startInotify();                    //configure inotify
 
 public:
     Control(const std::string& capturePath);
     ~Control();
 
-    void addRobot(const id mid, const color mprimaryColor, const bool misAlly=false);
+    void addRobot(const id t_id, const color t_primaryColor, const bool t_isAlly=false);
     
-    void putCommand(Command cmd);
+    void putInCommandQueue(Command cmd);
     position getAllyPos (const id allyID);
 
 };

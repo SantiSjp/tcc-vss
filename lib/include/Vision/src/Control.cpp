@@ -9,27 +9,27 @@
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
-using namespace vss;
-
+namespace vss {
 Control::Control(const std::string& capturePath) 
     : m_capturePath(capturePath) {
     if(startInotify()) {
         m_failedToBuild = true;
     }
 
-    proc = std::make_unique<ProcessImages>(cameraQueue);
+    m_processImages = std::make_unique<ProcessImages>(cameraQueue);
 
     //spawn threads
-    processThread = std::thread(&ProcessImages::start, proc.get());
+    m_processThread = std::thread(&ProcessImages::start, m_processImages.get());
     
-    isRunning = true;
+    m_isRunning = true;
 }
+
 
 bool Control::startInotify() {
     boost::filesystem::path path(m_capturePath);
     auto handleNotification = [&](inotify::Notification notification) {
         //std::cout << notification.path.c_str() << std::endl;
-        getImage(notification.path.c_str());
+        putInCameraQueue(notification.path.c_str());
     };
 
     auto events = {inotify::Event::create, inotify::Event::moved_to, inotify::Event::move};
@@ -43,20 +43,20 @@ bool Control::startInotify() {
 }
 
 
-void Control::addRobot(const id mid, 
-    const color mprimaryColor, 
-    const bool misAlly) {
-    if(misAlly) {
-        allyRobots[mid] = std::make_unique<Robot>(mid, mprimaryColor, misAlly);
+void Control::addRobot(const id t_id, 
+    const color t_primaryColor, 
+    const bool t_isAlly) {
+    if(t_isAlly) {
+        m_allyRobots[t_id] = std::make_unique<Robot>(t_id, t_primaryColor, t_isAlly);
         
     } else {
-        enemyRobots[mid] = std::make_unique<Robot>(mid, mprimaryColor, misAlly);
+        m_enemyRobots[t_id] = std::make_unique<Robot>(t_id, t_primaryColor, t_isAlly);
     }
     
 }
 
 
-void Control::getImage(const std::string& path){
+void Control::putInCameraQueue(const std::string& path){
     cv::Mat image;
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
     image = cv::imread(path, cv::ImreadModes::IMREAD_COLOR);
@@ -67,20 +67,25 @@ void Control::getImage(const std::string& path){
     cameraQueue.put(PolyM::DataMsg<cv::Mat>(0,image));
 }
 
-void Control::putCommand(const Command command) {
+
+void Control::putInCommandQueue(const Command command) {
     commandQueue.put(PolyM::DataMsg<Command>(0, command));
 }
 
+
 position Control::getAllyPos(const id allyID){
-    return allyRobots[allyID]->getPosition();
+    return m_allyRobots[allyID]->getPosition();
 }
 
+
 Control::~Control(){
-    isRunning = false;
+    m_isRunning = false;
     m_notifier.stop();
 
-    proc->stop();
+    m_processImages->stop();
 
-    processThread.join();
+    m_processThread.join();
     m_monitorThread.join();
+}
+
 }
