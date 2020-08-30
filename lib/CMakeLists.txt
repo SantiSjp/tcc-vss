@@ -15,7 +15,7 @@ file(GLOB_RECURSE HEADER_FILES include/Vision/*.h)
 
 #Create lib 
 add_library(proprietary_libs STATIC ${SOURCE_FILES} ${HEADER_FILES})
-set_target_properties(proprietary_libs PROPERTIES PUBLIC_HEADER "include/CommandInterface.h;include/DataTypes.h")
+#set_target_properties(proprietary_libs PROPERTIES PUBLIC_HEADER "include/CommandInterface.h;include/DataTypes.h")
 
 #include polym manualy
 file(GLOB_RECURSE POLYM_SOURCE include/PolyM/*.cpp)
