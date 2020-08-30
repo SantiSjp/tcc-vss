@@ -7,7 +7,7 @@
 
 #include "Vision/Robot.h"
 #include "Control.h"
-#include "Datatypes.h"
+#include "DataTypes.h"
 
 class CommandInterface {
 private:
