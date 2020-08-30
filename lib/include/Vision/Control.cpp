@@ -9,6 +9,8 @@
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
+using namespace vss;
+
 Control::Control(const std::string& capturePath) 
     : m_capturePath(capturePath) {
     if(startInotify()) {
@@ -26,7 +28,7 @@ Control::Control(const std::string& capturePath)
 bool Control::startInotify() {
     boost::filesystem::path path(m_capturePath);
     auto handleNotification = [&](inotify::Notification notification) {
-        std::cout << notification.path.c_str() << std::endl;
+        //std::cout << notification.path.c_str() << std::endl;
         getImage(notification.path.c_str());
     };
 
@@ -55,18 +57,22 @@ void Control::addRobot(const id mid,
 
 
 void Control::getImage(const std::string& path){
-        cv::Mat image;
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        image = cv::imread(path, cv::ImreadModes::IMREAD_COLOR);
-        if(!image.data){
-            return;
-        }
-        
-        cameraQueue.put(PolyM::DataMsg<cv::Mat>(0,image));
+    cv::Mat image;
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    image = cv::imread(path, cv::ImreadModes::IMREAD_COLOR);
+    if(!image.data){
+        return;
+    }
+    
+    cameraQueue.put(PolyM::DataMsg<cv::Mat>(0,image));
 }
 
-void Control::onNewFile(const callBack& t_callback){
-    m_notifyCallBack = t_callback;
+void Control::putCommand(const Command command) {
+    commandQueue.put(PolyM::DataMsg<Command>(0, command));
+}
+
+position Control::getAllyPos(const id allyID){
+    return allyRobots[allyID]->getPosition();
 }
 
 Control::~Control(){

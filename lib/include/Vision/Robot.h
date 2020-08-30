@@ -4,27 +4,28 @@
 #include <map>
 #include <vector>
 
-using position = std::map<int, int>;
-using color = std::vector<int>;
-using id = int;
+#include "DataTypes.h"
 
-class Robot {
-private:
-    const int id;
-    const bool isAlly; 
-    const std::vector<int> primaryColor;
-    
-    position currentPosition;
+namespace vss {
+    class Robot {
+    private:
+        const id m_id;
+        const bool isAlly; 
+        const color primaryColor;
+        
+        position currentPosition;
 
-public:
-    Robot(  const int mid, 
-            const color mcolor, 
-            const bool misAlly = false) 
-                : id(mid), primaryColor(mcolor), isAlly(misAlly) {};
+    public:
+        Robot(  const int mid, 
+                const color mcolor, 
+                const bool misAlly = false,
+                const position pos = {0,0})
+                    : m_id(mid), primaryColor(mcolor), isAlly(misAlly), currentPosition(pos) {};
 
-    void updatePosition(const position& pos) { currentPosition = pos;}
-    const position getPosition() const { return currentPosition; }
-    bool ally() const {return isAlly;}
-};
+        void updatePosition(const position& pos) { currentPosition = pos;}
+        const position getPosition() const { return currentPosition; }
+        bool ally() const {return isAlly;}
+    };
+}
 
 #endif

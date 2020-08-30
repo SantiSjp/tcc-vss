@@ -12,34 +12,19 @@
 
 #include <inotify-cpp/NotifierBuilder.h>
 
+#include "DataTypes.h"
 #include "Robot.h"
 #include "ProcessImages.h"
+#include "Command.h"
 
+namespace vss {
 class Control {
 private:
     bool m_failedToBuild = true;            //Check if start is OK 
     bool isRunning = false;                 //Start loop
     std::string m_capturePath;              //Path to captured frames
     
-    inotify::NotifierBuilder m_notifier;    //Inotify object for callback handle
-    std::unique_ptr<ProcessImages> proc;    //OpenCV methods for image processing
-    
-    //threads
-    //std::thread imageThread;
-    std::thread processThread;
-    std::thread m_monitorThread;
-
-    //thread methods
-    void getImage(const std::string& path);
-
-    bool startInotify();                    //configure inotify
-
-    //Callback for inotify
-    using callBack = std::function<void(void)>;
-    callBack m_notifyCallBack;
-
-public:
-
+    //Position maps
     std::map<id, std::unique_ptr<Robot>> allyRobots;
     std::map<id, std::unique_ptr<Robot>> enemyRobots;
     position ballPos;
@@ -50,12 +35,28 @@ public:
     PolyM::Queue commandQueue;
     PolyM::Queue robotQueue;
 
+    inotify::NotifierBuilder m_notifier;    //Inotify object for callback handle
+    std::unique_ptr<ProcessImages> proc;    //OpenCV methods for image processing
+    
+    //threads
+    std::thread processThread;
+    std::thread m_monitorThread;
+
+    //thread methods
+    void getImage(const std::string& path);
+    bool startInotify();                    //configure inotify
+
+public:
     Control(const std::string& capturePath);
     ~Control();
 
     void addRobot(const id mid, const color mprimaryColor, const bool misAlly=false);
-    void onNewFile(const callBack& t_callback);
+    
+    void putCommand(Command cmd);
+    position getAllyPos (const id allyID);
 
 };
+
+}
 
 #endif
