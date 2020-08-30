@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
-#include "Vision/Control.h"
-#include "Vision/Command.h"
+#include "Vision/src/Control.h"
+#include "Vision/src/Command.h"
 
 namespace {
     using namespace vss;

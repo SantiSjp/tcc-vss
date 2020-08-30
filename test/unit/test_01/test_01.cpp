@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include <Vision/Control.h>
+#include <Vision/src/Control.h>
 
 namespace {
     using namespace vss;

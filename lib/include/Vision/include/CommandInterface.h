@@ -5,9 +5,9 @@
 #include <memory>
 #include <vector>
 
-#include "Vision/Robot.h"
-#include "Control.h"
-#include "DataTypes.h"
+#include "Vision/src/Robot.h"
+#include "Vision/src/Control.h"
+#include "Vision/src/DataTypes.h"
 
 class CommandInterface {
 private:

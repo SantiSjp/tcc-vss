@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <iostream>
 
-#include <Vision/CommandInterface.h>
+#include <Vision/include/CommandInterface.h>
 
 int main(int argc, char **argv) {
     std::cout << "Starting" << std::endl;
