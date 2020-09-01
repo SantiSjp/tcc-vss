@@ -5,12 +5,18 @@
 
 #include "PolyM/Queue.h"
 
+#include <opencv2/core/core.hpp>
+
 class ProcessImages {
 private:
     bool isRunning = false;
     int imageSeqNum = 0;
-    
+
+    cv::Mat fieldImage;     //temporary
+
     PolyM::Queue& cameraQueue;
+
+    cv::Mat extractImageInfo(cv::Mat& image);
 
 public:
     ProcessImages(PolyM::Queue& queue);

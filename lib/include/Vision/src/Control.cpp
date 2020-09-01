@@ -65,6 +65,7 @@ void Control::putInCameraQueue(const std::string& path){
     }
     
     cameraQueue.put(PolyM::DataMsg<cv::Mat>(0,image));
+    std::experimental::filesystem::remove(path);
 }
 
 

@@ -49,7 +49,7 @@ private:
 public:
     Control(const std::string& capturePath);
     ~Control();
-
+    
     void addRobot(const id t_id, const color t_primaryColor, const bool t_isAlly=false);
     
     void putInCommandQueue(Command cmd);
