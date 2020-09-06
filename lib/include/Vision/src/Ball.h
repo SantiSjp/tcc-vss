@@ -6,19 +6,19 @@
 namespace vss{
     class Ball{
     private:
-        double ballRadius;
-        color ballColor;
-        position ballPosition;
+        const double ballRadius;
+        const color ballColor;
+        const position ballPosition;
 
     public:
-        Ball(   double mballRadius, 
-                color mballColor, 
-                position mballPosition)
+        Ball(   const double mballRadius, 
+                const color mballColor, 
+                const position mballPosition)
                     :ballRadius(mballRadius), ballColor(mballColor), ballPosition(mballPosition) {};
     
-        position getPosition(){return ballPosition;}
-        color getColor(){return ballColor;}
-        double getRadius(){return ballRadius;}
+        position getPosition() const {return ballPosition;}
+        color getColor() const {return ballColor;}
+        double getRadius()const {return ballRadius;}
     };
 }
 

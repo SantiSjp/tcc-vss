@@ -6,16 +6,16 @@
 namespace vss{
     class Field{
     private:
-        lenght fieldLenght;
-        color fieldColor;
+        const lenght fieldLenght;
+        const color fieldColor;
 
     public:
-        Field(  lenght mfieldLenght, 
-                color mfieldColor)
+        Field(  const lenght mfieldLenght, 
+                const color mfieldColor)
                     :fieldLenght(mfieldLenght),fieldColor(mfieldColor){};
 
-        lenght getLenght(){return fieldLenght;}
-        color getColor(){return fieldColor;}
+        lenght getLenght() const {return fieldLenght;}
+        color getColor() const {return fieldColor;}
     };
 }
 
