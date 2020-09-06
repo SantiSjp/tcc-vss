@@ -1,4 +1,4 @@
-image: santisjp/opencv_cpp:tccvss2
+image: santisjp/opencv_cpp:tccvss3
 
 stages:
   - build
@@ -34,9 +34,6 @@ Test:
       - unit_tests_output.txt
       
   script: 
-    - mkdir /tmp/vision
-    - mkdir /tmp/vision/test-output
-    - mkdir /tmp/vision/capture/
     - ./build/test/unit/unit_test >> unit_tests_output.txt
     
 
