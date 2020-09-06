@@ -4,9 +4,11 @@
 #include <PolyM/Msg.h>
 
 #include <array>
+#include <vector>
 
 namespace vss {
     using position = std::array<int, 2>;
+    using lenght = std::array<int, 2>;
     using color = std::vector<int>;
     using id = int;
 
