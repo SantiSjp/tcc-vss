@@ -4,9 +4,11 @@
 #include <memory>
 
 #include "PolyM/Queue.h"
+#include "DataTypes.h"
 
 #include <opencv2/core/core.hpp>
 
+namespace vss {
 class ProcessImages {
 private:
     bool isRunning = false;
@@ -16,7 +18,7 @@ private:
 
     PolyM::Queue& cameraQueue;
 
-    cv::Mat extractImageInfo(cv::Mat& image);
+    std::vector<Element> extractImageInfo(cv::Mat& image);
 
 public:
     ProcessImages(PolyM::Queue& queue);
@@ -25,5 +27,6 @@ public:
     void stop();
 
 };
+}
 
 #endif

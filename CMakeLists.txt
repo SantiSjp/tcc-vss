@@ -16,6 +16,10 @@ add_subdirectory(3rdparty)
 file(MAKE_DIRECTORY /tmp/vision/capture)
 file(MAKE_DIRECTORY /tmp/vision/test-output)
 
+# temporary
+file(MAKE_DIRECTORY /tmp/vision/test-field)
+file(COPY "test/test_frames/vss_field_clean.png" DESTINATION "/tmp/vision/test-field")
+
 if(BUILD_TESTS)
     add_subdirectory(test)
 endif()
