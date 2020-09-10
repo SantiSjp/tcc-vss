@@ -13,18 +13,13 @@
 namespace vss {
 Control::Control(const std::string& capturePath) 
     : m_capturePath(capturePath) {
-    if(startInotify()) {
-        m_failedToBuild = true;
-    }
+        
+    m_logger = std::make_unique<Logger>("Control", "logs/vision_log.txt", Level::debug);
+    m_logger->info("System Start");
 
-    m_logger = spdlog::basic_logger_mt("vision_log", "logs/vision_log.txt");
-    spdlog::set_default_logger(m_logger);
-    m_logger->set_pattern("[%D|%T] (%l) : %v");
-    m_logger->flush_on(spdlog::level::info);
-    
-    m_logger->info("System Start.");
+    startInotify();
 
-    m_processImages = std::make_unique<ProcessImages>(cameraQueue);
+    m_processImages = std::make_unique<ProcessImages>(cameraQueue, processQueue);
 
     //spawn threads
     m_processThread = std::thread(&ProcessImages::start, m_processImages.get());
@@ -41,6 +36,7 @@ bool Control::startInotify() {
 
     auto events = {inotify::Event::create, inotify::Event::moved_to, inotify::Event::move};
 
+    m_logger->info("Inotify watching path: %s",path);
     m_notifier = inotify::BuildNotifier();
     m_notifier.watchPathRecursively(path);
     m_notifier.onEvents(events, handleNotification);
@@ -55,11 +51,11 @@ void Control::addRobot(const id t_id,
     const bool t_isAlly) {
     if(t_isAlly) {
         m_allyRobots[t_id] = std::make_unique<Robot>(t_id, t_primaryColor, t_isAlly);
-        m_logger->info(format("New robot [%d] added to allyRobots map.", t_id));
+        m_logger->debug(Logger::format("New robot [%d] added to allyRobots map.", t_id));
 
     } else {
         m_enemyRobots[t_id] = std::make_unique<Robot>(t_id, t_primaryColor, t_isAlly);
-        m_logger->info("New robot [%d] added to enemyRobots map.", t_id);
+        m_logger->debug("New robot [%d] added to enemyRobots map.", t_id);
     }
     
 }
@@ -75,12 +71,12 @@ void Control::putInCameraQueue(const std::string& path){
     
     cameraQueue.put(PolyM::DataMsg<cv::Mat>(0,image));
     std::experimental::filesystem::remove(path);
-    m_logger->info("'%1%' inserted in cameraQueue", path);
+    m_logger->debug("Captured frame '%s'", path);
 }
 
 
 void Control::putInCommandQueue(const Command command) {
-    m_logger->info(format("Captured command RobotId:%d.", command.robotId));
+    m_logger->debug("Captured command RobotId: %d.", command.robotId);
     commandQueue.put(PolyM::DataMsg<Command>(0, command));
 }
 
@@ -91,7 +87,7 @@ position Control::getAllyPos(const id allyID){
 
 
 Control::~Control(){
-    m_logger->info("System Stop.");
+    m_logger->info("System Stop");
     m_isRunning = false;
     m_notifier.stop();
 

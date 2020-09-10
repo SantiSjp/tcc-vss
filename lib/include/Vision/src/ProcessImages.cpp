@@ -11,14 +11,24 @@
 
 namespace vss {
 
-ProcessImages::ProcessImages(PolyM::Queue& queue) 
-    : cameraQueue(queue) {
+ProcessImages::ProcessImages(PolyM::Queue& t_cameraQ, PolyM::Queue& t_processQ) 
+    : m_cameraQueue(t_cameraQ), m_processQueue(t_processQ) {
+    
+    m_logger = std::make_unique<Logger>("ProcessImages", "logs/vision_log.txt", Level::debug);
+    m_logger->info("Starting ProcessImages thread");
+
     fieldImage = cv::imread("/tmp/vision/test-field/vss_field_clean.png", cv::ImreadModes::IMREAD_COLOR);
+    ballColor = cv::imread("/tmp/vision/test-field/cor_bola.png", cv::ImreadModes::IMREAD_COLOR);
+
+    
 }
 
 std::vector<Element> ProcessImages::extractImageInfo(cv::Mat& image) {
     std::vector<Element> elements;
-
+    
+    cv::Mat diffImage;
+    cv::subtract(fieldImage, image, diffImage);
+    
     //Convert Image to grayscale and find contours
     cv::Mat grayScaleImage;
     cv::cvtColor(image, grayScaleImage, cv::COLOR_BGR2GRAY);
@@ -29,14 +39,15 @@ std::vector<Element> ProcessImages::extractImageInfo(cv::Mat& image) {
     for (size_t idx = 0; idx < contours.size(); idx++) {
         auto img = image.clone();
         auto rect = cv::boundingRect(contours[idx]);
-        cv::rectangle(img, {rect.x,rect.y}, {rect.x+rect.width,rect.y+rect.height}, (0,0,255), 2);
+        cv::rectangle(img, {rect.x,rect.y}, {rect.x+rect.width,rect.y+rect.height}, (0,0,0), 1);
         cv::Rect crop(rect.x,rect.y, rect.width, rect.height);
         cv::Mat cropped = img(crop);
         Element newElement (cropped, {rect.x+rect.width/2, rect.y+rect.height/2}); 
         elements.emplace_back(newElement);
-        cv::circle(image, {newElement.position[0], newElement.position[1]}, 3.0, cv::Scalar(0,0,255 ), 1, 8 );
+        //cv::circle(image, {newElement.position[0], newElement.position[1]}, 3.0, cv::Scalar(0,0,255 ), 1, 8 );
     }
     
+    //int image_num = 0;
     //Identify objects as allys, enemies or ball
     for (auto& element : elements) {
         cv::Mat img;
@@ -55,26 +66,38 @@ std::vector<Element> ProcessImages::extractImageInfo(cv::Mat& image) {
             continue;
         }
 
+        cv::Mat hsvBall = ballColor.clone();
+        cv::cvtColor(ballColor, hsvBall, cv::COLOR_BGR2HSV);
+        cv::Scalar average = cv::mean(hsvBall);
+        //std::cout << "average: " << average.val[0] << "-" << average.val[1] << "-" << average.val[2]  << std::endl;
+
         cv::Mat orangeMask;
-        cv::inRange(img, cv::Scalar(100, 160, 120), cv::Scalar(120, 255, 255), orangeMask);
-        cv::findContours(orangeMask, contours, cv::RETR_TREE, cv::CHAIN_APPROX_NONE); 
-        const std::string output {"/tmp/vision/test-output/orangeMask.png"};
-        cv::imwrite(output, orangeMask);
+        //cv::inRange(img, cv::Scalar(100, 160, 255), cv::Scalar(120, 255, 255), orangeMask);
+        cv::Scalar avLow = (average.val[0]-1, 0, 0);
+        cv::Scalar avHigh = (average.val[0]+1, 255, 255);
+        cv::inRange(img, avLow, avHigh, orangeMask);        
+        
+        cv::findContours(orangeMask, contours, cv::RETR_TREE, cv::CHAIN_APPROX_NONE);
+        //cv::imwrite("/tmp/vision/test-output/orangeMask" + std::to_string(image_num) + ".png", orangeMask);
+        //cv::imwrite("/tmp/vision/test-output/original"+ std::to_string(image_num) +".png", img);
+        //cv::imwrite("/tmp/vision/test-output/hvsBall.png", hsvBall);
+        //image_num++;
         if(contours.size() > 0) {
             //std::cout << "Achou bola" << std::endl;
             element.isBall = true;
             continue;
         }
 
+       
     }
 
     //Write image files for all objects
-    for (auto element : elements) {
-        std::string ally = element.isAlly? "ally": element.isBall? "ball" : "enemy";
-        const std::string output {"/tmp/vision/test-output/" + ally + "-" + std::to_string(imageSeqNum) + ".png"};
-        cv::imwrite(output, element.image);
-        imageSeqNum++;
-    }
+    // for (auto element : elements) {
+    //     std::string ally = element.isAlly? "ally": element.isBall? "ball" : "enemy";
+    //     const std::string output {"/tmp/vision/test-output/" + ally + "-" + std::to_string(imageSeqNum) + ".png"};
+    //     cv::imwrite(output, element.image);
+    //     imageSeqNum++;
+    // }
 
     return elements;
 }
@@ -83,24 +106,19 @@ std::vector<Element> ProcessImages::extractImageInfo(cv::Mat& image) {
 void ProcessImages::start(){
     isRunning = true;
     while (isRunning){
-        auto codedImage = cameraQueue.get(500);
+        auto codedImage = m_cameraQueue.get(500);
         if(codedImage->getMsgId() != PolyM::MSG_TIMEOUT){
             auto image = dynamic_cast<PolyM::DataMsg<cv::Mat>&>(*codedImage).getPayload();
-            
-            cv::Mat diffImage;
-            cv::subtract(fieldImage, image, diffImage);
-            const auto imageElements = extractImageInfo(diffImage);
-
-            //test saving image in /tmp
-            //const std::string output {"/tmp/vision/test-output/centers-" + std::to_string(imageSeqNum) + ".png"};
-            //cv::imwrite(output, colourImage);
-            imageSeqNum++;
+            const auto imageElements = extractImageInfo(image);
+            m_logger->debug("Processed image, %d elements.", imageElements.size());
+            m_processQueue.put(PolyM::DataMsg<std::vector<Element>>(0, imageElements));
         }
     }
 
 }
 
 void ProcessImages::stop(){
+    m_logger->debug("Finishing");
     isRunning = false;
 }
 

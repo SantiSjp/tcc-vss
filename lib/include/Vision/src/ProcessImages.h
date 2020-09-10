@@ -3,9 +3,10 @@
 
 #include <memory>
 
-#include "PolyM/Queue.h"
 #include "DataTypes.h"
+#include "Logger.h"
 
+#include "PolyM/Queue.h"
 #include <opencv2/core/core.hpp>
 
 namespace vss {
@@ -14,14 +15,18 @@ private:
     bool isRunning = false;
     int imageSeqNum = 0;
 
-    cv::Mat fieldImage;     //temporary
+    std::unique_ptr<Logger> m_logger;
 
-    PolyM::Queue& cameraQueue;
+    cv::Mat fieldImage;     //temporary
+    cv::Mat ballColor;      //temporary
+
+    PolyM::Queue& m_cameraQueue;
+    PolyM::Queue& m_processQueue;
 
     std::vector<Element> extractImageInfo(cv::Mat& image);
 
 public:
-    ProcessImages(PolyM::Queue& queue);
+    ProcessImages(PolyM::Queue& t_cameraQ, PolyM::Queue& t_processQ);
 
     void start();
     void stop();

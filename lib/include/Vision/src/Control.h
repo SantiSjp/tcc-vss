@@ -16,15 +16,15 @@
 #include "Robot.h"
 #include "ProcessImages.h"
 #include "Command.h"
+#include "Logger.h"
 
 namespace vss {
 class Control {
 private:
-    bool m_failedToBuild = true;            //Check if start is OK 
     bool m_isRunning = false;               //Start loop
     std::string m_capturePath;              //Path to captured frames
     
-    std::shared_ptr<spdlog::logger> m_logger;
+    std::unique_ptr<Logger> m_logger;       //System log
 
     //Position maps
     std::map<id, std::unique_ptr<Robot>> m_allyRobots;
@@ -47,15 +47,6 @@ private:
     //thread methods
     void putInCameraQueue(const std::string& path);
     bool startInotify();                                //configure inotify
-
-    template<typename... Arguments>
-    std::string format(std::string const& fmt, Arguments&&... args) {
-        boost::format f(fmt);
-        int unroll[] {0, (f % std::forward<Arguments>(args), 0)...};
-        static_cast<void>(unroll);
-
-        return boost::str(f);
-    }
 
 public:
     Control(const std::string& capturePath);
