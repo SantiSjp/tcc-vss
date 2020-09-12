@@ -2,6 +2,8 @@
 #define PROCESSIMAGES_H
 
 #include <memory>
+#include <vector>
+#include <string>
 
 #include "DataTypes.h"
 #include "Logger.h"
@@ -19,9 +21,26 @@ private:
 
     cv::Mat fieldImage;     //temporary
     cv::Mat ballColor;      //temporary
-
+    
     PolyM::Queue& m_cameraQueue;
     PolyM::Queue& m_processQueue;
+
+    struct ColorCalibration {
+        cv::Mat fieldImage;
+        cv::Mat ballColorImage;
+        std::vector<cv::Mat> friendlyColorsImages;
+
+        //cv::Mat allyMask;
+        cv::Mat ballMask;
+
+        cv::Scalar ballMaskThresholdLow;
+        cv::Scalar ballMaskThresholdHigh;
+
+    } calibration;
+
+    void calibrate( const std::string& fieldImagePath,
+                    const std::string& ballColorImagePath,
+                    const std::vector<std::string>& friendlyColorsImagePath);
 
 public:
     ProcessImages(PolyM::Queue& t_cameraQ, 

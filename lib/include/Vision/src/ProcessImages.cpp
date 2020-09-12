@@ -18,16 +18,32 @@ ProcessImages::ProcessImages(PolyM::Queue& t_cameraQ, PolyM::Queue& t_processQ,
     m_logger = std::make_unique<Logger>(logName, logPath, Level::debug);
     m_logger->info("Starting ProcessImages thread");
 
-    fieldImage = cv::imread("/tmp/vision/test/field/vss_field_clean.png", cv::ImreadModes::IMREAD_COLOR);
-    ballColor = cv::imread("/tmp/vision/test/color/cor_bola.png", cv::ImreadModes::IMREAD_COLOR);
-
+    calibrate(  "/tmp/vision/test/field/vss_field_clean.png",
+                "/tmp/vision/test/color/cor_bola.png",
+                {});
     
 }
+
+void ProcessImages::calibrate(  const std::string& fieldImagePath,
+                                const std::string& ballColorImagePath,
+                                const std::vector<std::string>& friendlyColorsImagePath) {
+    
+    calibration.fieldImage = cv::imread(fieldImagePath, cv::ImreadModes::IMREAD_COLOR);
+    calibration.ballColorImage = cv::imread(ballColorImagePath, cv::ImreadModes::IMREAD_COLOR);
+
+    cv::Mat hsvBall = calibration.ballColorImage.clone();
+    cv::cvtColor(calibration.ballColorImage, hsvBall, cv::COLOR_BGR2HSV);
+    cv::Scalar average = cv::mean(hsvBall);
+    calibration.ballMaskThresholdLow = (average.val[0]-3, average.val[1]-10, average.val[2]-10);
+    calibration.ballMaskThresholdHigh = (average.val[0]+3, 255, 255);
+    m_logger->debug("HSVBall avarage H:%d S:%d V:%d", average.val[0], average.val[1], average.val[2]);
+}
+
 
 std::vector<Element> ProcessImages::extractImageInfo(cv::Mat& image) {
     std::vector<Element> elements;
     cv::Mat diffImage;
-    cv::subtract(fieldImage, image, diffImage);
+    cv::subtract(calibration.fieldImage, image, diffImage);
     
     //Convert Image to grayscale and find contours
     cv::Mat grayScaleImage;
@@ -39,8 +55,7 @@ std::vector<Element> ProcessImages::extractImageInfo(cv::Mat& image) {
     for (size_t idx = 0; idx < contours.size(); idx++) {
         auto img = diffImage.clone();
         auto rect = cv::boundingRect(contours[idx]);
-        //cv::rectangle(img, {rect.x-1,rect.y+1}, {rect.x-1+rect.width+2,rect.y+1+rect.height+1}, (0,0,0), 1);
-        cv::Rect crop(rect.x+5,rect.y+3, rect.width-8, rect.height-6);
+        cv::Rect crop(rect.x,rect.y, rect.width, rect.height);
         cv::Mat cropped = img(crop);
         Element newElement (cropped, {rect.x+rect.width/2, rect.y+rect.height/2}); 
         elements.emplace_back(newElement);
@@ -56,35 +71,21 @@ std::vector<Element> ProcessImages::extractImageInfo(cv::Mat& image) {
         cv::Mat blueMask, greenMask;
         cv::inRange(img, cv::Scalar(130, 160, 120), cv::Scalar(180, 255, 255), greenMask);
         cv::inRange(img, cv::Scalar(0, 100, 100), cv::Scalar(40, 255, 255), blueMask);
-        cv::Mat allyMask = blueMask + greenMask;
-        
+        auto allyMask = blueMask + greenMask;
+
         std::vector<std::vector<cv::Point>> contours;
         cv::findContours(allyMask, contours, cv::RETR_TREE, cv::CHAIN_APPROX_NONE);
         if(contours.size() > 0) {
-            //std::cout << "Achou aliado" << std::endl;
             element.isAlly = true;
             continue;
         }
 
-        cv::Mat hsvBall = ballColor.clone();
-        cv::cvtColor(ballColor, hsvBall, cv::COLOR_BGR2HSV);
-        cv::Scalar average = cv::mean(hsvBall);
-        m_logger->debug("HSVBall avarage H:%d S:%d V:%d", average.val[0], average.val[1], average.val[2]);
-        //std::cout << "average: " << average.val[0] << "-" << average.val[1] << "-" << average.val[2]  << std::endl;
-
-        cv::Mat orangeMask;
-        //cv::inRange(img, cv::Scalar(100, 160, 255), cv::Scalar(120, 255, 255), orangeMask);
-        cv::Scalar avLow = (average.val[0]-3, average.val[1]-10, average.val[2]-10);
-        cv::Scalar avHigh = (average.val[0]+3, 255, 255);
-        cv::inRange(img, avLow, avHigh, orangeMask);        
-        
-        cv::findContours(orangeMask, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
-        cv::imwrite("/tmp/vision/test-output/orangeMask" + std::to_string(image_num) + ".png", orangeMask);
-        //cv::imwrite("/tmp/vision/test-output/original"+ std::to_string(image_num) +".png", img);
-        //cv::imwrite("/tmp/vision/test-output/hvsBall.png", hsvBall);
+        //cv::inRange(img, cv::Scalar(100, 160, 255), cv::Scalar(120, 255, 255), ballMask);
+        cv::inRange(img, calibration.ballMaskThresholdLow, calibration.ballMaskThresholdHigh, calibration.ballMask);        
+        cv::findContours(calibration.ballMask, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
+        cv::imwrite("/tmp/vision/test-output/ballMask" + std::to_string(image_num) + ".png", calibration.ballMask);
         image_num++;
         if(contours.size() > 0) {
-            //std::cout << "Achou bola" << std::endl;
             element.isBall = true;
             continue;
         }
