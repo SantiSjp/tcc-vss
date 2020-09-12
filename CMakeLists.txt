@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.4)
-project(vision_vss VERSION 0.0.1 LANGUAGES CXX)
+project(vision_vss VERSION 0.3.0 LANGUAGES CXX)
 set(PROJECT_NAME vision_vss)
-set(VERSION 0.0.1)
+set(VERSION 0.3.0)
 
 set(CMAKE_CXX_STANDARD 20)
 
@@ -17,6 +17,13 @@ file(MAKE_DIRECTORY /tmp/vision/capture)
 file(MAKE_DIRECTORY /tmp/vision/test-output)
 
 if(BUILD_TESTS)
+    file(MAKE_DIRECTORY /tmp/vision/test/frames)
+    file(MAKE_DIRECTORY /tmp/vision/test/field)
+    file(MAKE_DIRECTORY /tmp/vision/test/color)
+    file(COPY "test/test_frames/vss_field_clean.png" DESTINATION "/tmp/vision/test/field")
+    file(COPY "test/test_frames/cor_bola.png" DESTINATION "/tmp/vision/test/color")
+    file(GLOB TEST_FRAMES "test/test_frames/vss_field_form_*.png")
+    file(COPY ${TEST_FRAMES} DESTINATION "/tmp/vision/test/frames")
     add_subdirectory(test)
 endif()
 

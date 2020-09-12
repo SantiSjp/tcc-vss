@@ -15,12 +15,15 @@ file(GLOB_RECURSE HEADER_FILES include/Vision/*.h)
 
 #Create lib 
 add_library(proprietary_libs STATIC ${SOURCE_FILES} ${HEADER_FILES})
-#set_target_properties(proprietary_libs PROPERTIES PUBLIC_HEADER "include/CommandInterface.h;include/DataTypes.h")
 
 #include polym manualy
 file(GLOB_RECURSE POLYM_SOURCE include/PolyM/*.cpp)
 file(GLOB_RECURSE POLYM_HEADER include/PolyM/*.h)
 add_library(polym SHARED ${POLYM_SOURCE} ${POLYM_HEADER})
+
+#include spdlog
+add_library(spdlog INTERFACE)
+target_include_directories(spdlog INTERFACE include/spdlog)
 
 #directories for installation
 target_include_directories(polym
@@ -37,4 +40,4 @@ target_include_directories(proprietary_libs
             ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 #link libraries
-target_link_libraries(proprietary_libs ${Boost_LIBRARIES} ${OpenCV_LIBS}  polym pthread stdc++fs inotify-cpp-shared)
+target_link_libraries(proprietary_libs ${Boost_LIBRARIES} ${OpenCV_LIBS}  polym spdlog pthread stdc++fs inotify-cpp-shared)
