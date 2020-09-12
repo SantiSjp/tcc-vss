@@ -23,13 +23,16 @@ private:
     PolyM::Queue& m_cameraQueue;
     PolyM::Queue& m_processQueue;
 
-    std::vector<Element> extractImageInfo(cv::Mat& image);
-
 public:
-    ProcessImages(PolyM::Queue& t_cameraQ, PolyM::Queue& t_processQ);
+    ProcessImages(PolyM::Queue& t_cameraQ, 
+                    PolyM::Queue& t_processQ,
+                    const std::string& logName = "ProcessImages", 
+                    const std::string& logPath = "logs/vision_log.txt");
 
     void start();
     void stop();
+
+    std::vector<Element> extractImageInfo(cv::Mat& image);
 
 };
 }

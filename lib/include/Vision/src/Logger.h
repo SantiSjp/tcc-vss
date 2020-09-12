@@ -24,7 +24,8 @@ public:
 
         m_logger = spdlog::basic_logger_mt(t_name, t_path);
         m_logger->set_level(t_level);
-        
+        m_logger->flush_on(t_level);
+
         m_logger->set_pattern("[%D|%T] [%7!n] [%-5!l] : %v");
     };
 
