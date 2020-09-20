@@ -18,9 +18,9 @@ ProcessImages::ProcessImages(PolyM::Queue& t_cameraQ, PolyM::Queue& t_processQ,
     m_logger = std::make_unique<Logger>(logName, logPath, Level::debug);
     m_logger->info("Starting ProcessImages thread");
 
-    calibrate(  "/tmp/vision/test/field/vss_field_clean.png",
-                "/tmp/vision/test/color/cor_bola.png",
-                {});
+    calibrate(  "/tmp/vision/test/field/RGB_vss_field_clean.png",
+                "/tmp/vision/test/color/RGB_ball_color.png",
+                {"/tmp/vision/test/color/RGB_ally_color_01.png","/tmp/vision/test/color/RGB_ally_color_02.png"});
     
 }
 
@@ -28,69 +28,84 @@ void ProcessImages::calibrate(  const std::string& fieldImagePath,
                                 const std::string& ballColorImagePath,
                                 const std::vector<std::string>& friendlyColorsImagePath) {
     
-    calibration.fieldImage = cv::imread(fieldImagePath, cv::ImreadModes::IMREAD_COLOR);
-    calibration.ballColorImage = cv::imread(ballColorImagePath, cv::ImreadModes::IMREAD_COLOR);
+    fieldImage = cv::imread(fieldImagePath, cv::ImreadModes::IMREAD_COLOR);
+    
+    int allyColorNum = 1;
+    for (auto& path : friendlyColorsImagePath) {
+        auto image = cv::imread(path, cv::ImreadModes::IMREAD_COLOR);
+        cv::cvtColor(image, image, cv::COLOR_BGR2HSV);
+        cv::Scalar average = cv::mean(image);
+        Mask newMask;
+        newMask.thresholdLow =  cv::Scalar( average.val[0]-20 > 0? average.val[0]-20 : 0,
+                                            100, 
+                                            20);
+        
+        newMask.thresholdHigh = cv::Scalar( average.val[0]+20 > 255? 255 : average.val[0]+20,
+                                            255,
+                                            255);
+        allyColorMask.emplace_back(newMask);
+        m_logger->debug("Ally Color [%d], path: '%s', H:%d S:%d V:%d", allyColorNum, path, average.val[0], average.val[1], average.val[2]);
+        allyColorNum++;
+    }
 
-    cv::Mat hsvBall = calibration.ballColorImage.clone();
-    cv::cvtColor(calibration.ballColorImage, hsvBall, cv::COLOR_BGR2HSV);
-    cv::Scalar average = cv::mean(hsvBall);
-    calibration.ballMaskThresholdLow = (average.val[0]-3, average.val[1]-10, average.val[2]-10);
-    calibration.ballMaskThresholdHigh = (average.val[0]+3, 255, 255);
-    m_logger->debug("HSVBall avarage H:%d S:%d V:%d", average.val[0], average.val[1], average.val[2]);
+    auto ballColorImage = cv::imread(ballColorImagePath, cv::ImreadModes::IMREAD_COLOR);
+    cv::cvtColor(ballColorImage, ballColorImage, cv::COLOR_BGR2HSV);
+    cv::Scalar average = cv::mean(ballColorImage);
+    ballColorMask.thresholdLow = cv::Scalar(average.val[0]-10, 100, 20);
+    ballColorMask.thresholdHigh = cv::Scalar(average.val[0]+10, 255, 255);
+    m_logger->debug("HSVBall avarage: H:%d S:%d V:%d", average.val[0], average.val[1], average.val[2]);
+
 }
 
 
 std::vector<Element> ProcessImages::extractImageInfo(cv::Mat& image) {
     std::vector<Element> elements;
     cv::Mat diffImage;
-    cv::subtract(calibration.fieldImage, image, diffImage);
+    cv::subtract(fieldImage, image, diffImage);
     
-    //Convert Image to grayscale and find contours
     cv::Mat grayScaleImage;
     cv::cvtColor(diffImage, grayScaleImage, cv::COLOR_BGR2GRAY);
     std::vector<std::vector<cv::Point>> contours;
     cv::findContours(grayScaleImage, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
-    
-    //Find and isolate image elements
     for (size_t idx = 0; idx < contours.size(); idx++) {
-        auto img = diffImage.clone();
+        auto img = image.clone();
         auto rect = cv::boundingRect(contours[idx]);
         cv::Rect crop(rect.x,rect.y, rect.width, rect.height);
         cv::Mat cropped = img(crop);
         Element newElement (cropped, {rect.x+rect.width/2, rect.y+rect.height/2}); 
         elements.emplace_back(newElement);
-        cv::circle(image, {newElement.position[0], newElement.position[1]}, 3.0, cv::Scalar(0,0,255 ), 1, 8 );
+        //cv::circle(image, {newElement.position[0], newElement.position[1]}, 3.0, cv::Scalar(0,0,255 ), 1, 8 );
     }
     
-    int image_num = 0;
     //Identify objects as allys, enemies or ball
+    int image_num = -1;
     for (auto& element : elements) {
+        image_num++;
         cv::Mat img;
         cv::cvtColor(element.image, img, cv::COLOR_BGR2HSV);
-        
-        cv::Mat blueMask, greenMask;
-        cv::inRange(img, cv::Scalar(130, 160, 120), cv::Scalar(180, 255, 255), greenMask);
-        cv::inRange(img, cv::Scalar(0, 100, 100), cv::Scalar(40, 255, 255), blueMask);
-        auto allyMask = blueMask + greenMask;
+    
+        cv::Mat allyMask, allyColor1, allyColor2;
+        cv::inRange(img, allyColorMask[0].thresholdLow, allyColorMask[0].thresholdHigh, allyColor1);
+        cv::inRange(img, allyColorMask[1].thresholdLow, allyColorMask[1].thresholdHigh, allyColor2);
+        allyMask = cv::max(allyColor1, allyColor2);
 
         std::vector<std::vector<cv::Point>> contours;
-        cv::findContours(allyMask, contours, cv::RETR_TREE, cv::CHAIN_APPROX_NONE);
-        if(contours.size() > 0) {
+        cv::findContours(allyMask, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
+        if(contours.size() == 2) {
             element.isAlly = true;
+            m_logger->debug("Found Ally!");
             continue;
         }
-
-        //cv::inRange(img, cv::Scalar(100, 160, 255), cv::Scalar(120, 255, 255), ballMask);
-        cv::inRange(img, calibration.ballMaskThresholdLow, calibration.ballMaskThresholdHigh, calibration.ballMask);        
-        cv::findContours(calibration.ballMask, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
-        cv::imwrite("/tmp/vision/test-output/ballMask" + std::to_string(image_num) + ".png", calibration.ballMask);
-        image_num++;
-        if(contours.size() > 0) {
-            element.isBall = true;
-            continue;
-        }
-
        
+        cv::Mat ballMask;
+        cv::inRange(img, ballColorMask.thresholdLow, ballColorMask.thresholdHigh, ballMask);      
+        cv::findContours(ballMask, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
+        if(contours.size() == 1) {
+            element.isBall = true;
+            m_logger->debug("Found Ball!");
+            continue;
+        }
+
     }
 
     //Write image files for all objects

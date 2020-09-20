@@ -19,24 +19,18 @@ private:
 
     std::unique_ptr<Logger> m_logger;
 
-    cv::Mat fieldImage;     //temporary
-    cv::Mat ballColor;      //temporary
+    cv::Mat fieldImage;
     
     PolyM::Queue& m_cameraQueue;
     PolyM::Queue& m_processQueue;
-
-    struct ColorCalibration {
-        cv::Mat fieldImage;
-        cv::Mat ballColorImage;
-        std::vector<cv::Mat> friendlyColorsImages;
-
-        //cv::Mat allyMask;
-        cv::Mat ballMask;
-
-        cv::Scalar ballMaskThresholdLow;
-        cv::Scalar ballMaskThresholdHigh;
-
-    } calibration;
+    
+    struct Mask {
+        cv::Scalar thresholdLow;
+        cv::Scalar thresholdHigh;
+    };
+    
+    Mask ballColorMask;
+    std::vector<Mask> allyColorMask;
 
     void calibrate( const std::string& fieldImagePath,
                     const std::string& ballColorImagePath,
