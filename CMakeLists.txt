@@ -21,12 +21,12 @@ if(BUILD_TESTS)
     file(MAKE_DIRECTORY /tmp/vision/test/field)
     file(MAKE_DIRECTORY /tmp/vision/test/color)
     
-    file(COPY "test/images/clean_field/RGB_vss_field_clean.png" DESTINATION "/tmp/vision/test/field")
+    file(COPY "test/images/clean_field/vss_field_clean.png" DESTINATION "/tmp/vision/test/field")
     
-    file(GLOB TEST_COLORS "test/images/color/RGB_*.png")
+    file(GLOB TEST_COLORS "test/images/color/*.png")
     file(COPY ${TEST_COLORS} DESTINATION "/tmp/vision/test/color")
     
-    file(GLOB TEST_FRAMES "test/images/frames/RGB_*.png")
+    file(GLOB TEST_FRAMES "test/images/frames/frame_*.png")
     file(COPY ${TEST_FRAMES} DESTINATION "/tmp/vision/test/frames")
     add_subdirectory(test)
 endif()

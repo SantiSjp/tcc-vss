@@ -18,9 +18,9 @@ ProcessImages::ProcessImages(PolyM::Queue& t_cameraQ, PolyM::Queue& t_processQ,
     m_logger = std::make_unique<Logger>(logName, logPath, Level::debug);
     m_logger->info("Starting ProcessImages thread");
 
-    calibrate(  "/tmp/vision/test/field/RGB_vss_field_clean.png",
-                "/tmp/vision/test/color/RGB_ball_color.png",
-                {"/tmp/vision/test/color/RGB_ally_color_01.png","/tmp/vision/test/color/RGB_ally_color_02.png"});
+    calibrate(  "/tmp/vision/test/field/vss_field_clean.png",
+                "/tmp/vision/test/color/ball_color.png",
+                {"/tmp/vision/test/color/ally_color_01.png","/tmp/vision/test/color/ally_color_02.png"});
     
 }
 
@@ -72,7 +72,7 @@ std::vector<Element> ProcessImages::extractImageInfo(cv::Mat& image) {
         auto rect = cv::boundingRect(contours[idx]);
         cv::Rect crop(rect.x,rect.y, rect.width, rect.height);
         cv::Mat cropped = img(crop);
-        Element newElement (cropped, {rect.x+rect.width/2, rect.y+rect.height/2}); 
+        Element newElement (cropped, {rect.x+rect.width/2, rect.y+rect.height/2});
         elements.emplace_back(newElement);
         //cv::circle(image, {newElement.position[0], newElement.position[1]}, 3.0, cv::Scalar(0,0,255 ), 1, 8 );
     }
@@ -93,7 +93,7 @@ std::vector<Element> ProcessImages::extractImageInfo(cv::Mat& image) {
         cv::findContours(allyMask, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
         if(contours.size() == 2) {
             element.isAlly = true;
-            m_logger->debug("Found Ally!");
+            m_logger->debug("Found Ally  - Center {%d,%d}", element.position[0], element.position[1]);
             continue;
         }
        
@@ -102,19 +102,20 @@ std::vector<Element> ProcessImages::extractImageInfo(cv::Mat& image) {
         cv::findContours(ballMask, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
         if(contours.size() == 1) {
             element.isBall = true;
-            m_logger->debug("Found Ball!");
+            m_logger->debug("Found Ball  - Center {%d,%d}", element.position[0], element.position[1]);
             continue;
         }
 
+        m_logger->debug("Found Enemy - Center {%d,%d}", element.position[0], element.position[1]);
     }
 
     //Write image files for all objects
-    for (auto element : elements) {
-        std::string ally = element.isAlly? "ally": element.isBall? "ball" : "enemy";
-        const std::string output {"/tmp/vision/test-output/" + ally + "-" + std::to_string(imageSeqNum) + ".png"};
-        cv::imwrite(output, element.image);
-        imageSeqNum++;
-    }
+    //for (auto element : elements) {
+    //    std::string ally = element.isAlly? "ally": element.isBall? "ball" : "enemy";
+    //    const std::string output {"/tmp/vision/test-output/" + ally + "-" + std::to_string(imageSeqNum) + ".png"};
+    //    cv::imwrite(output, element.image);
+    //    imageSeqNum++;
+    //}
 
     return elements;
 }
