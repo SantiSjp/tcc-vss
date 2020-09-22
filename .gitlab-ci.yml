@@ -32,6 +32,7 @@ Test:
     expose_as: 'Unit Tests Output'
     paths:
       - unit_tests_output.txt
+      - unit_test_log.txt
       
   script:
     - cmake -DBUILD_TESTS=ON -DGEN_PACKAGE=ON -DCMAKE_BUILD_WITH_INSTALL_RPATH=TRUE -B build

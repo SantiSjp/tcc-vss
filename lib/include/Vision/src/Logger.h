@@ -2,6 +2,7 @@
 #define LOGGER_H
 
 #include <string>
+#include <memory>
 
 #include <boost/format.hpp>
 
@@ -22,7 +23,13 @@ public:
     Logger(const std::string& t_name, const std::string& t_path ,const Level t_level = Level::debug) 
         : m_name(t_name), m_path(t_path), m_logLevel(t_level) {
 
-        m_logger = spdlog::basic_logger_mt(t_name, t_path);
+        auto log = spdlog::get(t_name);
+        if (log == nullptr) {
+            m_logger = spdlog::basic_logger_mt(t_name, t_path);
+        } else {
+            m_logger = log;
+        }
+
         m_logger->set_level(t_level);
         m_logger->flush_on(t_level);
 
