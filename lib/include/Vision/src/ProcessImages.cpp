@@ -42,6 +42,7 @@ void ProcessImages::calibrate(  const std::string& fieldImagePath,
         
         newMask.thresholdHigh = cv::Scalar( average.val[0]+20 > 255? 255 : average.val[0]+20,
                                             255,
+                                            
                                             255);
         allyColorMask.emplace_back(newMask);
         m_logger->debug("Ally Color [%d], path: '%s', H:%d S:%d V:%d", allyColorNum, path, average.val[0], average.val[1], average.val[2]);
@@ -53,7 +54,7 @@ void ProcessImages::calibrate(  const std::string& fieldImagePath,
     cv::Scalar average = cv::mean(ballColorImage);
     ballColorMask.thresholdLow = cv::Scalar(average.val[0]-10, 100, 20);
     ballColorMask.thresholdHigh = cv::Scalar(average.val[0]+10, 255, 255);
-    m_logger->debug("HSVBall avarage: H:%d S:%d V:%d", average.val[0], average.val[1], average.val[2]);
+    m_logger->debug("Ball Color, path: '%s',  H:%d S:%d V:%d", ballColorImagePath, average.val[0], average.val[1], average.val[2]);
 
 }
 
@@ -74,7 +75,8 @@ std::vector<Element> ProcessImages::extractImageInfo(cv::Mat& image) {
         cv::Mat cropped = img(crop);
         Element newElement (cropped, {rect.x+rect.width/2, rect.y+rect.height/2});
         elements.emplace_back(newElement);
-        //cv::circle(image, {newElement.position[0], newElement.position[1]}, 3.0, cv::Scalar(0,0,255 ), 1, 8 );
+        cv::circle(image, {newElement.position[0], newElement.position[1]}, 3.0, cv::Scalar(0,0,255 ), 1, 8 );
+        cv::imwrite("/tmp/vision/test-output/centros.png", image);
     }
     
     //Identify objects as allys, enemies or ball
@@ -110,12 +112,12 @@ std::vector<Element> ProcessImages::extractImageInfo(cv::Mat& image) {
     }
 
     //Write image files for all objects
-    //for (auto element : elements) {
-    //    std::string ally = element.isAlly? "ally": element.isBall? "ball" : "enemy";
-    //    const std::string output {"/tmp/vision/test-output/" + ally + "-" + std::to_string(imageSeqNum) + ".png"};
-    //    cv::imwrite(output, element.image);
-    //    imageSeqNum++;
-    //}
+    for (auto element : elements) {
+        std::string ally = element.isAlly? "ally": element.isBall? "ball" : "enemy";
+        const std::string output {"/tmp/vision/test-output/" + ally + "-" + std::to_string(imageSeqNum) + ".png"};
+        cv::imwrite(output, element.image);
+        imageSeqNum++;
+    }
 
     return elements;
 }
