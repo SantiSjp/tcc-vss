@@ -18,7 +18,7 @@ namespace {
         cv::Mat imageForm01;
         
         TestProcessImage() {
-                imageForm01 = cv::imread("/tmp/vision/test/frames/frame_01.png", cv::ImreadModes::IMREAD_COLOR);
+                imageForm01 = cv::imread("/tmp/vision/test/frames/frame_02.png", cv::ImreadModes::IMREAD_COLOR);
                 proc = std::make_unique<ProcessImages>(cameraQ, processQ, "unit_test", "unit_test_log.txt");
         };
 
@@ -27,7 +27,7 @@ namespace {
 
     TEST_F(TestProcessImage, NumberOfElements) {
         const auto elements = proc->extractImageInfo(imageForm01);        
-        ASSERT_EQ(5, elements.size());
+        ASSERT_EQ(7, elements.size());
     }
    
     TEST_F(TestProcessImage, NumberOfEachElements) {
@@ -48,15 +48,15 @@ namespace {
 
         }
 
-        ASSERT_EQ(2, qntAllys);
-        ASSERT_EQ(2, qntEnemies);
+        ASSERT_EQ(3, qntAllys);
+        ASSERT_EQ(3, qntEnemies);
         ASSERT_EQ(1, qntBalls);
     }
 
     TEST_F(TestProcessImage, PositionOfAnElement) {
         const auto elements = proc->extractImageInfo(imageForm01);        
-        ASSERT_EQ(773, elements[0].position[0]);
-        ASSERT_EQ(630, elements[0].position[1]);
+        ASSERT_EQ(712, elements[0].position[0]);
+        ASSERT_EQ(727, elements[0].position[1]);
     }
 
 }

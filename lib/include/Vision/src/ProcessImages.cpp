@@ -20,7 +20,7 @@ ProcessImages::ProcessImages(PolyM::Queue& t_cameraQ, PolyM::Queue& t_processQ,
 
     calibrate(  "/tmp/vision/test/field/vss_field_clean.png",
                 "/tmp/vision/test/color/ball_color.png",
-                {"/tmp/vision/test/color/ally_color_01.png","/tmp/vision/test/color/ally_color_02.png"});
+                {"/tmp/vision/test/color/ally_color_01.png"});
     
 }
 
@@ -36,11 +36,11 @@ void ProcessImages::calibrate(  const std::string& fieldImagePath,
         cv::cvtColor(image, image, cv::COLOR_BGR2HSV);
         cv::Scalar average = cv::mean(image);
         Mask newMask;
-        newMask.thresholdLow =  cv::Scalar( average.val[0]-20 > 0? average.val[0]-20 : 0,
+        newMask.thresholdLow =  cv::Scalar( average.val[0]-10 > 0? average.val[0]-10 : 0,
                                             100, 
                                             20);
         
-        newMask.thresholdHigh = cv::Scalar( average.val[0]+20 > 255? 255 : average.val[0]+20,
+        newMask.thresholdHigh = cv::Scalar( average.val[0]+10 > 255? 255 : average.val[0]+10,
                                             255,
                                             
                                             255);
@@ -52,8 +52,8 @@ void ProcessImages::calibrate(  const std::string& fieldImagePath,
     auto ballColorImage = cv::imread(ballColorImagePath, cv::ImreadModes::IMREAD_COLOR);
     cv::cvtColor(ballColorImage, ballColorImage, cv::COLOR_BGR2HSV);
     cv::Scalar average = cv::mean(ballColorImage);
-    ballColorMask.thresholdLow = cv::Scalar(average.val[0]-10, 100, 20);
-    ballColorMask.thresholdHigh = cv::Scalar(average.val[0]+10, 255, 255);
+    ballColorMask.thresholdLow = cv::Scalar(average.val[0]-5, 100, 20);
+    ballColorMask.thresholdHigh = cv::Scalar(average.val[0]+5, 255, 255);
     m_logger->debug("Ball Color, path: '%s',  H:%d S:%d V:%d", ballColorImagePath, average.val[0], average.val[1], average.val[2]);
 
 }
@@ -62,7 +62,11 @@ void ProcessImages::calibrate(  const std::string& fieldImagePath,
 std::vector<Element> ProcessImages::extractImageInfo(cv::Mat& image) {
     std::vector<Element> elements;
     cv::Mat diffImage;
-    cv::subtract(fieldImage, image, diffImage);
+    cv::subtract(image, fieldImage, diffImage);
+
+    cv::imwrite("/tmp/vision/test-output/field.png", fieldImage);
+    cv::imwrite("/tmp/vision/test-output/capture.png", image);
+    cv::imwrite("/tmp/vision/test-output/diff.png", diffImage);
     
     cv::Mat grayScaleImage;
     cv::cvtColor(diffImage, grayScaleImage, cv::COLOR_BGR2GRAY);
@@ -71,6 +75,9 @@ std::vector<Element> ProcessImages::extractImageInfo(cv::Mat& image) {
     for (size_t idx = 0; idx < contours.size(); idx++) {
         auto img = image.clone();
         auto rect = cv::boundingRect(contours[idx]);
+        if (rect.area() < 700){
+            continue;
+        }
         cv::Rect crop(rect.x,rect.y, rect.width, rect.height);
         cv::Mat cropped = img(crop);
         Element newElement (cropped, {rect.x+rect.width/2, rect.y+rect.height/2});
@@ -87,13 +94,13 @@ std::vector<Element> ProcessImages::extractImageInfo(cv::Mat& image) {
         cv::cvtColor(element.image, img, cv::COLOR_BGR2HSV);
     
         cv::Mat allyMask, allyColor1, allyColor2;
-        cv::inRange(img, allyColorMask[0].thresholdLow, allyColorMask[0].thresholdHigh, allyColor1);
-        cv::inRange(img, allyColorMask[1].thresholdLow, allyColorMask[1].thresholdHigh, allyColor2);
-        allyMask = cv::max(allyColor1, allyColor2);
+        cv::inRange(img, allyColorMask[0].thresholdLow, allyColorMask[0].thresholdHigh, allyMask);
+        //cv::inRange(img, allyColorMask[1].thresholdLow, allyColorMask[1].thresholdHigh, allyColor2);
+        //allyMask = cv::max(allyColor1, allyColor2);
 
         std::vector<std::vector<cv::Point>> contours;
         cv::findContours(allyMask, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
-        if(contours.size() == 2) {
+        if(contours.size() == 1) {
             element.isAlly = true;
             m_logger->debug("Found Ally  - Center {%d,%d}", element.position[0], element.position[1]);
             continue;
@@ -108,7 +115,7 @@ std::vector<Element> ProcessImages::extractImageInfo(cv::Mat& image) {
             continue;
         }
 
-        m_logger->debug("Found Enemy - Center {%d,%d}", element.position[0], element.position[1]);
+        m_logger->debug("Found Enemy - Center {%d,%d} ", element.position[0], element.position[1]);
     }
 
     //Write image files for all objects

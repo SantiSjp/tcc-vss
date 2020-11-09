@@ -44,7 +44,7 @@ int main(int argc, char **argv) {
             break;
         }
         
-        std::cout << "Pess any key to continue.";
+        std::cout << "Press any key to continue.";
         std::cin.ignore();
         std::cin.get();
         system("clear");
