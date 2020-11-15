@@ -7,6 +7,7 @@
 
 #include "DataTypes.h"
 #include "Logger.h"
+#include "Field.h"
 
 #include "PolyM/Queue.h"
 #include <opencv2/core/core.hpp>
@@ -20,10 +21,11 @@ private:
     std::unique_ptr<Logger> m_logger;
 
     cv::Mat fieldImage;
-    
+    Field* field;
+
     PolyM::Queue& m_cameraQueue;
     PolyM::Queue& m_processQueue;
-    
+        
     struct Mask {
         cv::Scalar thresholdLow;
         cv::Scalar thresholdHigh;

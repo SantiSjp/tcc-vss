@@ -14,7 +14,9 @@
 
 #include "DataTypes.h"
 #include "Robot.h"
+#include "Field.h"
 #include "ProcessImages.h"
+#include "ProcessPosition.h"
 #include "Command.h"
 #include "Logger.h"
 
@@ -31,6 +33,8 @@ private:
     std::map<id, std::unique_ptr<Robot>> m_enemyRobots;
     position m_ballPos;
 
+    std::shared_ptr<Field> field;
+
     //Queues
     PolyM::Queue cameraQueue;
     PolyM::Queue processQueue;
@@ -39,8 +43,10 @@ private:
 
     inotify::NotifierBuilder m_notifier;                //Inotify object for callback handle
     std::unique_ptr<ProcessImages> m_processImages;     //OpenCV methods for image processing
+    std::unique_ptr<ProcessPosition> m_processPosition; //Calculate Positions of elements found
     
     //threads
+    std::thread m_calculateThread;
     std::thread m_processThread;
     std::thread m_monitorThread;
 

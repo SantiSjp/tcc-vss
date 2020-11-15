@@ -24,7 +24,6 @@ namespace vss {
         bool isBall = false;
     };
 
-
 }
 
 

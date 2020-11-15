@@ -63,11 +63,7 @@ std::vector<Element> ProcessImages::extractImageInfo(cv::Mat& image) {
     std::vector<Element> elements;
     cv::Mat diffImage;
     cv::subtract(image, fieldImage, diffImage);
-
-    cv::imwrite("/tmp/vision/test-output/field.png", fieldImage);
-    cv::imwrite("/tmp/vision/test-output/capture.png", image);
-    cv::imwrite("/tmp/vision/test-output/diff.png", diffImage);
-    
+   
     cv::Mat grayScaleImage;
     cv::cvtColor(diffImage, grayScaleImage, cv::COLOR_BGR2GRAY);
     std::vector<std::vector<cv::Point>> contours;
@@ -82,8 +78,8 @@ std::vector<Element> ProcessImages::extractImageInfo(cv::Mat& image) {
         cv::Mat cropped = img(crop);
         Element newElement (cropped, {rect.x+rect.width/2, rect.y+rect.height/2});
         elements.emplace_back(newElement);
-        cv::circle(image, {newElement.position[0], newElement.position[1]}, 3.0, cv::Scalar(0,0,255 ), 1, 8 );
-        cv::imwrite("/tmp/vision/test-output/centros.png", image);
+        //cv::circle(image, {newElement.position[0], newElement.position[1]}, 3.0, cv::Scalar(0,0,255 ), 1, 8 );
+        //cv::imwrite("/tmp/vision/test-output/centros.png", image);
     }
     
     //Identify objects as allys, enemies or ball
@@ -119,12 +115,12 @@ std::vector<Element> ProcessImages::extractImageInfo(cv::Mat& image) {
     }
 
     //Write image files for all objects
-    for (auto element : elements) {
-        std::string ally = element.isAlly? "ally": element.isBall? "ball" : "enemy";
-        const std::string output {"/tmp/vision/test-output/" + ally + "-" + std::to_string(imageSeqNum) + ".png"};
-        cv::imwrite(output, element.image);
-        imageSeqNum++;
-    }
+    // for (auto element : elements) {
+    //     std::string ally = element.isAlly? "ally": element.isBall? "ball" : "enemy";
+    //     const std::string output {"/tmp/vision/test-output/" + ally + "-" + std::to_string(imageSeqNum) + ".png"};
+    //     /cv::imwrite(output, element.image);
+    //     imageSeqNum++;
+    // }
 
     return elements;
 }

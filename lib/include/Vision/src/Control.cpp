@@ -5,7 +5,6 @@
 
 #include "Control.h"
 
-
 #include <opencv2/core/utility.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/core/core.hpp>
@@ -23,9 +22,11 @@ Control::Control(const std::string& capturePath)
     startInotify();
 
     m_processImages = std::make_unique<ProcessImages>(cameraQueue, processQueue);
+    m_processPosition = std::make_unique<ProcessPosition>(processQueue);
 
     //spawn threads
     m_processThread = std::thread(&ProcessImages::start, m_processImages.get());
+    m_calculateThread = std::thread(&ProcessPosition::start, m_processPosition.get());
     
     m_isRunning = true;
 }
@@ -95,7 +96,9 @@ Control::~Control(){
     m_notifier.stop();
 
     m_processImages->stop();
+    m_processPosition->stop();
 
+    m_calculateThread.join();
     m_processThread.join();
     m_monitorThread.join();
 }
