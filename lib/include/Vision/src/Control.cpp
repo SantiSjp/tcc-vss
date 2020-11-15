@@ -54,11 +54,11 @@ void Control::addRobot(const id t_id,
     const color t_primaryColor, 
     const bool t_isAlly) {
     if(t_isAlly) {
-        m_allyRobots[t_id] = std::make_unique<Robot>(t_id, t_primaryColor, t_isAlly);
+        m_allyRobots[t_id] = std::make_unique<Robot>(t_id, cv::Mat(), t_isAlly);
         m_logger->debug(Logger::format("New robot [%d] added to allyRobots map.", t_id));
 
     } else {
-        m_enemyRobots[t_id] = std::make_unique<Robot>(t_id, t_primaryColor, t_isAlly);
+        m_enemyRobots[t_id] = std::make_unique<Robot>(t_id, cv::Mat(), t_isAlly);
         m_logger->debug("New robot [%d] added to enemyRobots map.", t_id);
     }
     
@@ -81,12 +81,13 @@ void Control::putInCameraQueue(const std::string& path){
 
 void Control::putInCommandQueue(const Command command) {
     m_logger->debug("Captured command RobotId: %d.", command.robotId);
+    m_processPosition->calculateFuturePosition(command);
     commandQueue.put(PolyM::DataMsg<Command>(0, command));
 }
 
 
 position Control::getAllyPos(const id allyID){
-    return m_processPosition->getCurrentField().getAllyPosition(allyID);
+    return m_processPosition->getCurrentField().getAlly(allyID).getPosition();
 }
 
 

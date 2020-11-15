@@ -11,19 +11,20 @@ namespace vss {
     private:
         const id m_id;
         const bool isAlly; 
-        const color primaryColor;
+        const cv::Mat image;
         
         position currentPosition;
 
     public:
         Robot(  const int mid, 
-                const color mcolor, 
+                const cv::Mat mimage, 
                 const bool misAlly = false,
                 const position pos = {0,0})
-                    : m_id(mid), primaryColor(mcolor), isAlly(misAlly), currentPosition(pos) {};
+                    : m_id(mid), image(mimage), isAlly(misAlly), currentPosition(pos) {};
 
         void updatePosition(const position& pos) { currentPosition = pos;}
         const position getPosition() const { return currentPosition; }
+        const cv::Mat getImage() const {return image;}
         bool ally() const {return isAlly;}
     };
 }

@@ -4,6 +4,7 @@
 #include <opencv2/imgcodecs.hpp>
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/core/utility.hpp"
+#include <opencv2/core.hpp>
 
 namespace vss {
 
@@ -81,6 +82,23 @@ void ProcessPosition::stop() {
 void ProcessPosition::calculateCurrentPosition(const std::vector<Element>& rawPosition) {
 }
 
+bool ProcessPosition::calculateFuturePosition(const Command& newCommand) { 
+    cv::Mat fieldMargins = currentField->getCleanField().clone();
+    auto robot = currentField->getAlly(newCommand.robotId);
+
+    try{
+        cv::Mat dest;
+        dest = fieldMargins(cv::Rect(newCommand.moveToPos[0], newCommand.moveToPos[1], robot.getImage().cols, robot.getImage().rows));
+        robot.getImage().copyTo(dest);
+    
+    } catch(cv::Exception e) {
+        m_logger->debug("Command invalid!");
+        return false;
+    }
+    
+    m_logger->debug("Command validated");
+    return true;
+}
 
 Field& ProcessPosition::getCurrentField() const{
     return *currentField;

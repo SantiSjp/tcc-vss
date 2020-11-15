@@ -4,6 +4,7 @@
 #include "DataTypes.h"
 #include "Logger.h"
 #include "Field.h"
+#include "Command.h"
 
 #include "PolyM/Queue.h"
 
@@ -18,7 +19,7 @@ private:
     std::unique_ptr<Field> currentField;
     
     PolyM::Queue& m_processQueue;
-    
+
     std::unique_ptr<Logger> m_logger;
     
     
@@ -35,7 +36,7 @@ public:
     void stop();
 
     void calculateCurrentPosition(const std::vector<Element>& rawPosition);
-    position calculateFuturePosition();
+    bool calculateFuturePosition(const Command& newCommand);
 
     Field& getCurrentField() const;
 };

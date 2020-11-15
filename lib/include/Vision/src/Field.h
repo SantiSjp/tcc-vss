@@ -66,11 +66,12 @@ public:
     void printCurrentField();
     
     lenght getPictureLenght() const; 
-    
+    cv::Mat& getCleanField();
+
     std::vector<Element> getElementPositions() const;
 
-    position getAllyPosition(const id allyID);
-    position getEnemyPosition(const id enemyID);
+    Robot& getAlly(const id allyID);
+    Robot& getEnemy(const id enemyID);
     position getBallPosition();
 
 };

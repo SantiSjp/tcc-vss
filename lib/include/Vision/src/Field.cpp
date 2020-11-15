@@ -42,10 +42,9 @@ void Field::updateField(const std::vector<Element>& elements){
 
     //Update Robots:
     for(auto element : elementsOnField) {
-        
         if(element.isAlly) {
             if (allyRobots.count(element.ID) == 0) {
-                allyRobots[element.ID] = std::make_unique<Robot>(element.ID, color(0,0), true);
+                allyRobots[element.ID] = std::make_unique<Robot>(element.ID, element.image, true);
             }
             allyRobots[element.ID]->updatePosition(element.position);
 
@@ -54,7 +53,7 @@ void Field::updateField(const std::vector<Element>& elements){
 
         } else {
             if (enemyRobots.count(element.ID) == 0) {
-                enemyRobots[element.ID] = std::make_unique<Robot>(element.ID, color(0,0), false);
+                enemyRobots[element.ID] = std::make_unique<Robot>(element.ID, element.image, false);
             }
             enemyRobots[element.ID]->updatePosition(element.position);
             
@@ -76,26 +75,31 @@ lenght Field::getPictureLenght() const {
 }
 
 
+cv::Mat& Field::getCleanField() {
+    return *cleanField;
+}
+
+
 std::vector<Element> Field::getElementPositions() const{
     return elementsOnField;
 }
 
 
-position Field::getAllyPosition(const id allyID) {
+Robot& Field::getAlly(const id allyID) {
     position pos = {0,0};
     if(allyRobots.count(allyID) != 0){
-        pos = allyRobots[allyID]->getPosition();
+        return *allyRobots[allyID];
     }
-    return pos;
+    //throw exception here
 }
 
 
-position Field::getEnemyPosition(const id enemyID) {
+Robot& Field::getEnemy(const id enemyID) {
     position pos = {0,0};
     if(enemyRobots.count(enemyID) != 0){
-        pos = enemyRobots[enemyID]->getPosition();
+        return *enemyRobots[enemyID];
     }
-    return pos;
+    //throw exception here
 }
 
 
