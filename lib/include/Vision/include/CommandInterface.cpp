@@ -13,3 +13,8 @@ void CommandInterface::addNewRobot(const int id, const vss::color& newColor, con
 void CommandInterface::insertCommandInQueue(int idRobot, const int posX, const int posY){
     control.putInCommandQueue(CommandFactory::makeNew(idRobot, posX, posY));
 }
+
+std::vector<int> CommandInterface::getPositions() {
+    const auto arrayPos = control.getAllyPos(0);
+    return std::vector<int>(arrayPos.cbegin(), arrayPos.cend());
+}

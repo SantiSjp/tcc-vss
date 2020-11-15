@@ -16,10 +16,12 @@ private:
     bool isRunning = false;
 
     std::unique_ptr<Field> currentField;
-
-    std::unique_ptr<Logger> m_logger;
+    
     PolyM::Queue& m_processQueue;
-
+    
+    std::unique_ptr<Logger> m_logger;
+    
+    
     void configure();
 
 public:
@@ -34,6 +36,8 @@ public:
 
     void calculateCurrentPosition(const std::vector<Element>& rawPosition);
     position calculateFuturePosition();
+
+    Field& getCurrentField() const;
 };
 
 }

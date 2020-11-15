@@ -33,12 +33,11 @@ int main(int argc, char **argv) {
             std::cout << "Adding robot id [" << robotIDs << "]" << std::endl;
             break;
         case 3:
-            std::cout << "Not implemented yet" << std::endl;
+            std::cout << "ally pos:" << vision.getPositions()[0] << "," << vision.getPositions()[1] << std::endl;
             break;
         case 9:
             isRunning = false;
             break;
-
         default:
             std::cout << "Not a valid command..." << std::endl;
             break;

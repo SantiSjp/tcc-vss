@@ -86,7 +86,7 @@ void Control::putInCommandQueue(const Command command) {
 
 
 position Control::getAllyPos(const id allyID){
-    return m_allyRobots[allyID]->getPosition();
+    return m_processPosition->getCurrentField().getAllyPosition(allyID);
 }
 
 

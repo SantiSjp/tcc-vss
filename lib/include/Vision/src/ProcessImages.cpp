@@ -84,6 +84,7 @@ std::vector<Element> ProcessImages::extractImageInfo(cv::Mat& image) {
     
     //Identify objects as allys, enemies or ball
     int image_num = -1;
+    int allyID = 0;
     for (auto& element : elements) {
         image_num++;
         cv::Mat img;
@@ -98,6 +99,7 @@ std::vector<Element> ProcessImages::extractImageInfo(cv::Mat& image) {
         cv::findContours(allyMask, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
         if(contours.size() == 1) {
             element.isAlly = true;
+            element.ID = allyID++;
             m_logger->debug("Found Ally  - Center {%d,%d}", element.position[0], element.position[1]);
             continue;
         }

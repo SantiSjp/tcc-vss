@@ -42,7 +42,6 @@ void ProcessPosition::configure() {
     //Compare Contours
     double bestFit = 0;
     double bestResutl = 1;
-    //cv::Mat contourImage(fieldImage.rows, fieldImage.cols, CV_8UC1, cv::Scalar::all(0));
     for (size_t idx = 0; idx < fieldsContours.size(); idx++) {
         auto result = cv::matchShapes(outlineContours[outlineCIndex], fieldsContours[idx], cv::CONTOURS_MATCH_I1, 0);
         if(result < bestResutl) {
@@ -53,15 +52,8 @@ void ProcessPosition::configure() {
 
     //Initialize field object:
     const lenght fieldSize = {fieldImage.rows, fieldImage.cols};
-    currentField = std::make_unique<Field>(fieldSize, fieldsContours[bestFit]);
-    m_logger->debug("Field Size: %dx%d pixels", currentField->getLenght()[0], currentField->getLenght()[1]);
-
-    // for(auto pixel : fieldsContours[bestFit]) {
-    //     m_logger->debug("{%d,%d}", pixel.x, pixel.y);
-    // }
-
-    //cv::drawContours(contourImage, fieldsContours, bestFit, cv::Scalar(254, 100, 100), 0, 8);
-    //cv::imwrite("/tmp/vision/test-output/contourImage.png", contourImage);
+    currentField = std::make_unique<Field>(fieldSize, fieldsContours[bestFit], "Field", "logs/vision_log.txt");
+    m_logger->debug("Field Size: %dx%d pixels", currentField->getPictureLenght()[0], currentField->getPictureLenght()[1]);
 }
 
 
@@ -71,7 +63,9 @@ void ProcessPosition::start(){
         auto queueElement = m_processQueue.get(500);
         if(queueElement->getMsgId() != PolyM::MSG_TIMEOUT){
             const auto rawPosition = dynamic_cast<PolyM::DataMsg<std::vector<Element>>&>(*queueElement).getPayload();
-            calculateCurrentPosition(rawPosition);
+            currentField->updateField(rawPosition);
+            m_logger->debug("updated field");
+            currentField->printCurrentField();
         }
     }
 
@@ -85,11 +79,11 @@ void ProcessPosition::stop() {
 
 
 void ProcessPosition::calculateCurrentPosition(const std::vector<Element>& rawPosition) {
-    for (auto& element : rawPosition) {
-        m_logger->debug("Calculating position...");
-        currentField->updateField(element);
-    }
 }
 
 
+Field& ProcessPosition::getCurrentField() const{
+    return *currentField;
+}
+    
 }

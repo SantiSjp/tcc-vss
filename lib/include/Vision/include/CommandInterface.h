@@ -18,6 +18,7 @@ public:
 
     void addNewRobot(const int id, const vss::color& newColor, const bool ally);
     void insertCommandInQueue(int idRobot, const int posX, const int posY);
+    std::vector<int> getPositions();
 
 };
 

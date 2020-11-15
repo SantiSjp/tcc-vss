@@ -4,8 +4,11 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <map>
 
 #include "DataTypes.h"
+#include "Robot.h"
+#include "Logger.h"
 
 #include <opencv2/imgcodecs.hpp>
 #include "opencv2/imgproc/imgproc.hpp"
@@ -36,16 +39,39 @@ struct pos {
 
 class Field {
 private:
-    const lenght fieldLenght;
+    //Game map:
     std::vector<std::vector<pos>> gameMap;
 
-    std::shared_ptr<cv::Mat> currentField;
+    // Printable map:
+    std::shared_ptr<cv::Mat> cleanField;
+    cv::Mat currentField;
+    const lenght pictureLenght;
+
+    //Position maps
+    std::map<id, std::unique_ptr<Robot>> allyRobots;
+    std::map<id, std::unique_ptr<Robot>> enemyRobots;
+    position ballPos;
+
+    //Elements
+    std::vector<Element> elementsOnField;
+
+    //Logger:
+    std::unique_ptr<Logger> m_logger;
 
 public:
-    Field(const lenght& t_lenght, const std::vector<cv::Point>& fieldMargins);
+    Field(const lenght& t_lenght, const std::vector<cv::Point>& fieldMargins, 
+        const std::string& logName, const std::string& logPath);
 
-    void updateField(const Element& element);
-    lenght getLenght() const {return fieldLenght;}
+    void updateField(const std::vector<Element>& elements);
+    void printCurrentField();
+    
+    lenght getPictureLenght() const; 
+    
+    std::vector<Element> getElementPositions() const;
+
+    position getAllyPosition(const id allyID);
+    position getEnemyPosition(const id enemyID);
+    position getBallPosition();
 
 };
 
