@@ -1,0 +1,20 @@
+#!/bin/bash
+
+if [ "$EUID" -ne 0 ]
+	then 
+		echo "Please run as root"
+		exit
+fi
+
+#update packages
+apt update
+
+#install dependencies
+apt -y install build-essential make cmake libgtest-dev git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev 
+
+#install opencv
+echo "WARNNING!"
+echo "OpenCV must be istalled!"
+echo "Clone: git clone https://github.com/opencv/opencv.git"
+echo "Install with: cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=/usr/local .."
+echo "See README for more info."
